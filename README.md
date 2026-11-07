@@ -11,3 +11,6 @@ The prototype also includes a link-retraining scenario and a scenario designed t
 What’s built so far
 The visual prototype demonstrates the full investigation flow with scripted responses and synthetic data. The build guide walks through adding live AI agents, tools that read telemetry and retrieve documentation, approval controls, and tests for whether the copilot’s conclusions are supported by the evidence.
 
+
+
+in this project we will focus on the - FabricOps: the general investigation platform—incident intake, telemetry tools, investigation history, evidence, and approval workflows.
