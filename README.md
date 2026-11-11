@@ -17,6 +17,3 @@ in this project we will focus on the - FabricOps: the general investigation plat
 
 
 
-stilll lokking for thr idea 
-
-
