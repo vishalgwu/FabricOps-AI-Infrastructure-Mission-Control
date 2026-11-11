@@ -13,6 +13,9 @@ The visual prototype demonstrates the full investigation flow with scripted resp
 
 
 
-in this project we will focus on the - FabricOps: the general investigation platform—incident intake, telemetry tools, investigation history, evidence, and approval workflows.
+in this project we will focus on the - FabricOps: the general investigation platform—incident intake, telemetry tools, investigation history, evidence, and approval workflows
 
-\\.......
+
+
+stilll lokking for thr idea 
+
