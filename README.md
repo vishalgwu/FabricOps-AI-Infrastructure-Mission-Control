@@ -44,7 +44,7 @@ FabricOps is the **general investigation platform**:
 | Area | Status |
 |---|---|
 | Repository and project specification | In progress (Step 1 of 14) |
-| Visual prototype (scripted, synthetic) | **Unverified** — not in this repository; will be recovered and reviewed before any UI is reimplemented |
+| Visual prototype | None exists. An earlier README mentioned one by mistake; the UI will be built from scratch at Step 10 |
 | Fixtures, tools, retrieval, agent runtime, UI, approvals, evaluation | Not started |
 
 No application code, tests, or deployment exist yet. Nothing here should be read as a working system until the matching step in the roadmap is accepted.

@@ -93,13 +93,13 @@ Invariants:
 
 | Claim | Status |
 |---|---|
-| Visual prototype with scripted responses exists | **Unverified.** Not in this repository. Recover and review before reimplementing; do not count it as a working backend. |
+| Visual prototype with scripted responses exists | **No.** No prototype exists; an earlier README mentioned one by mistake. The UI is built from scratch at Step 10. |
 | Any tool, retrieval, agent, UI, approval or evaluation capability | **Not implemented.** |
 
 ## 6. Step 1 gate check
 
 - [x] Each scenario has a testable expected behavior (section 2).
-- [x] Prototype claims are labeled unverified until source is recovered (section 5, README).
+- [x] No prototype claim remains; the earlier mention was a README mistake and is corrected (section 5, README).
 - [x] No unattended production remediation is in the MVP (sections 4 and intro).
 - [x] A reviewer can distinguish an observation, a hypothesis, and a proposed action (section 1).
 
