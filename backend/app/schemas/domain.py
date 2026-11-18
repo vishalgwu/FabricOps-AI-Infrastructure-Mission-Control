@@ -140,6 +140,8 @@ class DocumentChunk(StrictModel):
     text: str = Field(min_length=1)
     source: str
     synthetic_or_official: DocumentSourceKind
+    date: str | None = None
+    status: str = "current"  # "current" or "superseded"
 
 
 class Observation(StrictModel):

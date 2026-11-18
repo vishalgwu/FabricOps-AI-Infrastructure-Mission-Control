@@ -1,0 +1,55 @@
+{
+  "corpus_notice": "SYNTHETIC CORPUS: all documents here are written for the FabricOps demo. None is vendor documentation.",
+  "documents": [
+    {
+      "document_id": "RB-KV-001",
+      "title": "Runbook: KV-cache memory pressure on inference hosts",
+      "path": "rb-kv-001_v2.0.md",
+      "source": "data/docs/rb-kv-001_v2.0.md",
+      "version": "2.0",
+      "date": "2026-02-01",
+      "classification": "synthetic",
+      "status": "current"
+    },
+    {
+      "document_id": "RB-KV-001",
+      "title": "Runbook: KV-cache memory pressure on inference hosts",
+      "path": "rb-kv-001_v1.0.md",
+      "source": "data/docs/rb-kv-001_v1.0.md",
+      "version": "1.0",
+      "date": "2025-06-01",
+      "classification": "synthetic",
+      "status": "superseded"
+    },
+    {
+      "document_id": "RB-NET-001",
+      "title": "Runbook: Isolated link instability",
+      "path": "rb-net-001_v1.0.md",
+      "source": "data/docs/rb-net-001_v1.0.md",
+      "version": "1.0",
+      "date": "2026-02-01",
+      "classification": "synthetic",
+      "status": "current"
+    },
+    {
+      "document_id": "RB-TEL-001",
+      "title": "Runbook: Stale or missing telemetry",
+      "path": "rb-tel-001_v1.0.md",
+      "source": "data/docs/rb-tel-001_v1.0.md",
+      "version": "1.0",
+      "date": "2026-02-01",
+      "classification": "synthetic",
+      "status": "current"
+    },
+    {
+      "document_id": "GEN-001",
+      "title": "Serving notes: General operations notes",
+      "path": "gen-001_v1.0.md",
+      "source": "data/docs/gen-001_v1.0.md",
+      "version": "1.0",
+      "date": "2026-02-01",
+      "classification": "synthetic",
+      "status": "current"
+    }
+  ]
+}
