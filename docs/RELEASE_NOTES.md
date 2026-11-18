@@ -78,4 +78,4 @@ One milestone commit per phase on `main`:
 | 09 | `ab93089` | Mission-control UI |
 | 10 | `33b2426` | Evaluation |
 | 11 | `769269e` | Security and reliability review |
-| 12 | this release | Documentation, lock files, demo script, demo model, fresh-clone verification |
+| 12 | `62ec003`, `f55717e` (this release is tagged `v0.1.0`) | Documentation, lock files, demo script, demo model, fresh-clone verification |
