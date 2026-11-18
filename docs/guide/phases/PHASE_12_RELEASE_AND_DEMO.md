@@ -50,10 +50,10 @@ that are not implemented or tests that were not run."
 
 ## Acceptance
 
--   [ ] Fresh clone works from documented instructions.
--   [ ] Tests and evaluation commands work.
--   [ ] Demo scenarios are reproducible.
--   [ ] Synthetic data is clearly labelled.
--   [ ] Known limitations are documented.
--   [ ] Git history contains meaningful milestone commits.
--   [ ] Final release describes only verified functionality.
+-   [x] Fresh clone works from documented instructions.
+-   [x] Tests and evaluation commands work.
+-   [x] Demo scenarios are reproducible.
+-   [x] Synthetic data is clearly labelled.
+-   [x] Known limitations are documented.
+-   [x] Git history contains meaningful milestone commits.
+-   [x] Final release describes only verified functionality.

@@ -1,6 +1,6 @@
 # FabricOps MVP Specification
 
-Status: **Specification. Phases 00 to 11 of the build are implemented and tested against synthetic fixtures with a mock model** (see section 5 for exactly what is and is not built). Release work (Phase 12) is not built yet.
+Status: **Specification. All 13 phases of the build (00 to 12) are implemented and tested against synthetic fixtures with a mock or scripted model** (see section 5 for exactly what is and is not built, and `docs/RELEASE_NOTES.md` for what was verified).
 
 All data in the MVP is **synthetic**. The MVP is **proposal-only**: no unattended production remediation, no shell execution, no host restarts, no deployments.
 
@@ -99,7 +99,7 @@ Invariants:
 | Mission-control UI (incident intake, run timeline, evidence and citation viewers, report with facts / hypotheses / limitations, proposal and approval panel, run history) | **Implemented** (Phase 09), covered by frontend tests and checked in a browser against the real backend with a scripted model. |
 | Evaluation harness (27 cases with a scripted model, metrics with denominators, a report, a claim-support rubric, an optional live smoke test) | **Implemented** (Phase 10). It measures the safeguards, not the model. The manual claim-support review and the live smoke test have **not** been run. |
 | Security and reliability review and hardening (input and size bounds, safe errors and headers, log redaction, restart recovery, a time budget on the model call) | **Implemented** (Phase 11). It hardens a local demo; there is no authentication or rate limiting, and the unresolved risks are listed in `docs/security/THREAT_REVIEW.md`. |
-| Release, demo script, fresh-clone proof | **Not implemented** (Phase 12). |
+| Release: lock files, architecture document, five-minute demo script, scripted demo model, acceptance review, release notes, clean-clone check | **Implemented** (Phase 12). The clean-clone check was done on Windows only. |
 
 ## 6. Specification gate check
 

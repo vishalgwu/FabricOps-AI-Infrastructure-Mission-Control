@@ -94,17 +94,19 @@ pass.
 
 ## Final acceptance checklist
 
--   [ ] Fresh clone setup is documented and reproducible.
--   [ ] Three synthetic scenarios load and validate.
--   [ ] Incidents and runs persist across restarts.
--   [ ] Typed read-only tools return real fixture records.
--   [ ] Every evidence record has provenance and timestamps.
--   [ ] Retrieval returns versioned source chunks.
--   [ ] LLM outputs use a validated schema.
--   [ ] Unsupported evidence IDs are rejected.
--   [ ] Stale/missing telemetry causes abstention.
--   [ ] Risk policy is deterministic and server-side.
--   [ ] No production remediation is possible.
--   [ ] UI shows actual persisted state.
--   [ ] Evaluation results are reproducible.
--   [ ] README explains limitations honestly.
+-   [x] Fresh clone setup is documented and reproducible. (Windows only)
+-   [x] Three synthetic scenarios load and validate.
+-   [x] Incidents and runs persist across restarts.
+-   [x] Typed read-only tools return real fixture records.
+-   [x] Every evidence record has provenance and timestamps.
+-   [x] Retrieval returns versioned source chunks.
+-   [x] LLM outputs use a validated schema. (verified with a mock, a fake client and the scripted demo model; the real model was not run)
+-   [x] Unsupported evidence IDs are rejected.
+-   [x] Stale/missing telemetry causes abstention.
+-   [x] Risk policy is deterministic and server-side.
+-   [x] No production remediation is possible.
+-   [x] UI shows actual persisted state.
+-   [x] Evaluation results are reproducible.
+-   [x] README explains limitations honestly.
+
+See [../ACCEPTANCE_REVIEW.md](../ACCEPTANCE_REVIEW.md) for the line-by-line review and its caveats.

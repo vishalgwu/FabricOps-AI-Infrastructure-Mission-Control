@@ -31,15 +31,15 @@ verifying it.
 
 -   [x] Phase 10: evaluation (scripted model; claim-support review and live smoke test not yet run)
 -   [x] Phase 11: security and reliability (hardened for a local demo; unresolved risks are listed in docs/security/THREAT_REVIEW.md)
--   [ ] Phase 12: release and demo
+-   [x] Phase 12: release and demo (clean-clone check on Windows only; see docs/RELEASE_NOTES.md)
 
 ## Final proof
 
--   [x] Fresh-clone setup succeeds (backend tests, frontend build and lint; re-prove in Phase 12)
+-   [x] Fresh-clone setup succeeds (clean clone, README commands only, Windows; see docs/RELEASE_NOTES.md)
 -   [x] All automated tests pass (backend and frontend; re-confirm in Phase 12)
--   [ ] Three scenarios demonstrated
+-   [x] Three scenarios demonstrated (inference and link with the scripted demo model, not a real model)
 -   [x] Stale telemetry abstention demonstrated
 -   [x] Evidence citations resolve (server-checked and openable in the UI)
 -   [x] Approval decision persists
 -   [x] No production remediation exists
--   [ ] README matches verified implementation
+-   [x] README matches verified implementation (test counts, links and images are checked by tests/test_release.py)

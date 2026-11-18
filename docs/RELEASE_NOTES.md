@@ -33,7 +33,19 @@ called by this project's author.**
 
 ### Fresh-clone verification
 
-FRESH_CLONE_PLACEHOLDER
+Done on 2026-11-18, on Windows 11 with Python 3.13.5 and Node 24, from a **clean `git clone` of the release commit into an empty directory**, following only the README. The only deviation: the README's `.venv/bin/python` lines were run as `.venv/Scripts/python`, which the README notes for Windows.
+
+| Step (from the README) | Result |
+|---|---|
+| `python -m venv .venv`, `pip install -r requirements-lock.txt`, `pip install -e . --no-deps` | Installed the 36 pinned packages |
+| `pytest -q` | 403 passed |
+| `python -m evals --check-report` | 29/29 cases passed; the committed report matches |
+| `npm ci`, `npm test`, `npm run build`, `npm run lint` | 70 tests passed; build and lint clean; 0 vulnerabilities |
+| Start the backend with `FABRICOPS_LLM_PROVIDER=demo`, then `npm run dev` | Both started; the UI showed "Backend ok" |
+| The README's `curl` block, verbatim | Run reached ABSTAINED in about a second; the report listed the stale host and the missing baseline; 21 events |
+| The demo script, in a browser, against this clone | Followed steps 1 to 10: the incident form was pre-filled; the run reached *Waiting for approval* with the scripted-model notice, *Controlled test* risk and "Nothing is executed"; an evidence record showed *Observed at* 2026-03-10 and *Collected at* the current time; the citation opened runbook RB-KV-001 version 2.0; the stale scenario abstained with no model call; approving recorded the decision and completed the run; after stopping and restarting the backend, the decision, the 19 evidence rows and all 3 runs were still there |
+
+Not covered by this check: Linux and macOS, other Python or Node versions, and any use of a real API key.
 
 ## Not verified (read this)
 
