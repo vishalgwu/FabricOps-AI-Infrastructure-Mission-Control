@@ -292,6 +292,10 @@ def _check(case: EvalCase, o: dict[str, Any], step_checks: list[Check], res: Cas
         for want in e.tool_statuses:
             add(Check(f"{want.tool} on {want.host} reported '{want.status}'", seen.get((want.tool, want.host)) == want.status,
                       f"got {seen.get((want.tool, want.host))!r}"))
+    if e.demo_model_labelled:
+        limits = " ".join(o["report"]["limitations"]) if o["report"] else ""
+        add(Check("report says the demo model is a script, not an AI", "not by an AI" in limits, limits[:120]))
+        add(Check("run records the demo model ID", o["run"]["model_id"] == "scripted-demo-1", str(o["run"]["model_id"])))
     if e.failed_stage:
         stages = [d.get("stage") for d in _stage_events(o["events"], "stage_failed")]
         add(Check(f"failed in stage '{e.failed_stage}'", e.failed_stage in stages, f"failed stages: {stages}"))

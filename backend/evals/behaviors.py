@@ -133,9 +133,14 @@ BEHAVIORS = {
     "schema_violation": lambda req: {"observations": "none", "hypotheses": []},
 }
 OUTAGE = "provider_outage"
+SCRIPTED_DEMO = "scripted_demo"
 
 
 def provider_for(behavior: str) -> MockProvider:
+    if behavior == SCRIPTED_DEMO:
+        from app.llm.demo import ScriptedDemoProvider
+
+        return ScriptedDemoProvider()  # type: ignore[return-value]
     if behavior == OUTAGE:
         return MockProvider(TransientProviderError("503 upstream"))  # the last item repeats on every retry
     if behavior not in BEHAVIORS:
@@ -144,4 +149,4 @@ def provider_for(behavior: str) -> MockProvider:
 
 
 def all_behavior_names() -> set[str]:
-    return set(BEHAVIORS) | {OUTAGE}
+    return set(BEHAVIORS) | {OUTAGE, SCRIPTED_DEMO}

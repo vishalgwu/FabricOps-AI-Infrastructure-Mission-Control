@@ -7,7 +7,7 @@ import { Inspector, type Selection } from '../components/Inspector'
 import { ProposalPanel } from '../components/ProposalPanel'
 import { ReportView } from '../components/ReportView'
 import { Timeline } from '../components/Timeline'
-import { failureReason, formatDuration, formatTime, isActive } from '../format'
+import { failureReason, formatDuration, formatTime, isActive, isScriptedDemo } from '../format'
 import { useLoad, useRunData, type RunData } from '../hooks'
 import { links } from '../router'
 
@@ -31,6 +31,13 @@ export default function RunPage({ runId, pollActiveMs, pollWaitingMs }: { runId:
     <div className={`run-layout${selection ? ' has-inspector' : ''}`}>
       <div className="run-main">
         <RunHeader run={run} />
+        {isScriptedDemo(run.model_id) ? (
+          <div className="callout callout-neutral" role="note">
+            <strong>Scripted demo model.</strong> This analysis was written by a fixed script, not by an AI. It exists so
+            the application can be shown without an API key. Everything else (evidence collection, validation, policy,
+            approvals) is the real pipeline.
+          </div>
+        ) : null}
         <StatusExplanation data={result.data} />
 
         <Section id="timeline" title="What happened" hint="Each stage the investigation went through, in order.">

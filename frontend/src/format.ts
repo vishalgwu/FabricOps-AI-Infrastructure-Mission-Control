@@ -51,6 +51,9 @@ export const STATUS_INFO: Record<RunStatus, StatusInfo> = {
   CANCELLED: { label: 'Cancelled', tone: 'bad' },
 }
 
+/** The backend's scripted demo model (FABRICOPS_LLM_PROVIDER=demo). It is a fixed script, not an AI. */
+export const isScriptedDemo = (modelId: string | null): boolean => !!modelId && modelId.startsWith('scripted-demo')
+
 export const isActive = (s: RunStatus): boolean => s === 'CREATED' || s === 'RUNNING'
 
 export const STAGE_LABELS: Record<string, string> = {

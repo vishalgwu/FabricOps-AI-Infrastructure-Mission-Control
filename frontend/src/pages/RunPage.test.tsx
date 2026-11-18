@@ -347,3 +347,32 @@ describe('RunPage: proposal and approval', () => {
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull()
   })
 })
+
+describe('RunPage: scripted demo model', () => {
+  it('says plainly that a scripted model, not an AI, wrote the analysis', async () => {
+    const { calls } = server({ report: report(), evidence: [evidence()] })
+    void calls
+    vi.stubGlobal('fetch', async (input: RequestInfo | URL) => {
+      const path = new URL(String(input)).pathname
+      const body =
+        path.endsWith('/events') ? { run_id: 'run_1', events: stageEvents(STAGES), last_seq: 18 }
+        : path.endsWith('/report') ? report()
+        : path.endsWith('/evidence') ? [evidence()]
+        : path.endsWith('/proposal') ? null
+        : path.includes('/incidents/') ? incident()
+        : run({ model_id: 'scripted-demo-1' })
+      return body === null ? new Response('{}', { status: 404 }) : new Response(JSON.stringify(body), { status: 200 })
+    })
+    render(<RunPage runId="run_1" />)
+    const note = await screen.findByText('Scripted demo model.')
+    expect(note.closest('[role="note"]')!.textContent).toMatch(/not by an AI/)
+    expect(screen.getByText(/Model: scripted-demo-1/)).toBeTruthy()
+  })
+
+  it('shows no such notice for a run produced by a real model', async () => {
+    server({ report: report(), evidence: [evidence()] })
+    render(<RunPage runId="run_1" />)
+    await screen.findByText(/Facts from the evidence/)
+    expect(screen.queryByText('Scripted demo model.')).toBeNull()
+  })
+})

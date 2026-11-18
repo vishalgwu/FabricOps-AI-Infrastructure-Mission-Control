@@ -1,132 +1,150 @@
 # FabricOps — AI Infrastructure Mission Control
 
-FabricOps is an independent portfolio project. It shows how an AI copilot could help engineers investigate failures in infrastructure that runs AI workloads: it gathers evidence, asks a language model for hypotheses, checks every claim against that evidence, and recommends a safe next diagnostic step for a human to review.
+FabricOps is an independent portfolio project: an assistant that helps an engineer investigate a failure in the
+infrastructure that runs AI workloads. It gathers evidence, asks a language model for hypotheses, checks every claim
+against that evidence, and recommends a **safe next diagnostic step** for a human to review. When the evidence is stale
+or missing, it says so and stops instead of guessing.
 
-> **Disclaimer.** FabricOps is not affiliated with, endorsed by, or a product of any hardware or infrastructure vendor. It makes no claim of production accuracy.
+> **Disclaimer.** FabricOps is not affiliated with, endorsed by, or a product of any hardware or infrastructure vendor.
+> It makes no claim of production accuracy.
 >
-> **Synthetic-data policy.** All incidents, telemetry, configuration and runbooks in this repository are synthetic and labelled as such. No real customer, vendor or production data is used. Live telemetry connectors and real remediation are out of scope.
+> **Synthetic data.** Every incident, telemetry reading, configuration and runbook in this repository is fabricated and
+> labelled as such. No real customer, vendor or production data is used, and there is no connector to real systems.
+>
+> **Local demo only.** There is no authentication and no rate limiting. Do not expose it to a network.
 
-## The idea
+![A run waiting for approval: stages, proposed next step, facts, hypotheses and limitations](docs/images/02-run-waiting-approval.png)
 
-When inference slows down or a hardware link becomes unstable, engineers piece together telemetry, configuration and documentation by hand. FabricOps brings that evidence into one persistent investigation. An investigation ends in one of three ways:
+*An investigation of the synthetic "inference slowdown" incident, produced with the scripted demo model (a fixed script, not an AI; the grey box on the page says so). More screenshots are under [docs/images](docs/images).*
 
-- a **supported recommendation**: observations and hypotheses with cited evidence, and a bounded next test;
-- an **abstention**: an explicit list of the evidence that is missing. It never claims a cause it cannot support;
-- a **failure** with a typed error code, when something went wrong.
+## Who it is for and the problem it addresses
 
-Risky proposals pause for **human approval**. FabricOps only *proposes*: there is no code anywhere that executes remediation.
+Intended user: an infrastructure, platform or SRE engineer investigating a (simulated) incident. When inference slows down or a
+hardware link becomes unstable, the engineer pieces together telemetry, configuration and documentation by hand. A language
+model can help, but it can also invent causes, misread stale data, or suggest an unsafe action. FabricOps puts the model
+inside a controlled process so that what it says is checkable and what it can do is limited.
 
-Three synthetic scenarios are built in: **inference slowdown** (one host, healthy peers), **isolated link instability** (one host, healthy peers), and **stale or missing telemetry** (must abstain). The full specification is in [docs/mvp.md](docs/mvp.md).
+## What it does and does not do
 
-## Status
+**Does**
+- Collects scoped, read-only telemetry through typed tools (every reading has a host, a source and an observation time).
+- Retrieves versioned runbook passages and makes citations that open the exact passage.
+- Asks a model for observations, hypotheses (with counterevidence) and one next step, then **validates** the answer: every evidence and document ID must be real and from this run, proposed hosts must be affected hosts, wording that presents a guess as fact is refused.
+- **Abstains** (and never calls the model) when the affected host's data is stale, missing or timed out, or no peer host has fresh data to compare with.
+- Classifies the proposed step's risk **in backend code**, holds anything above read-only for a human decision, and binds that decision to the exact proposal.
+- Stores every run, stage, evidence record, report and decision, and shows them in a UI that reloads from the server.
 
-This is a work in progress. The backend, the UI, an evaluation of the safeguards, and a security and reliability review are built (Phases 00 to 11). Release work (Phase 12) is not. **It is a local demo and is not safe to expose to a network** (no authentication, no rate limiting).
-
-| Phase | What | State |
-|---|---|---|
-| 00 | Repository audit | Done ([baseline audit](docs/project/BASELINE_AUDIT.md)) |
-| 01 | Runnable backend and frontend skeleton | Done |
-| 02 | Domain schemas, synthetic fixtures, separate answer keys | Done |
-| 03 | SQLite persistence, incident and run API, run state machine | Done |
-| 04 | Typed read-only telemetry tools | Done |
-| 05 | Versioned document retrieval with citations | Done |
-| 06 | LLM investigator behind a provider interface | Done, but see below |
-| 07 | Bounded, idempotent investigation workflow | Done |
-| 08 | Deterministic policy, hashed proposals, approvals | Done |
-| 09 | Mission-control UI and history | Done, but see below |
-| 10 | Evaluation with reported results | Done for the safeguards, with a scripted model. The claim-support review and the live-model smoke test are **not done** (see below) |
-| 11 | Security and reliability review and hardening | Done: 10 confirmed issues fixed with tests; unresolved risks are listed in [the review](docs/security/THREAT_REVIEW.md) |
-| 12 | Release, demo script, fresh-clone proof | **Not started** |
-
-**What has been verified:** 383 automated backend tests (including a 27-case evaluation and the security regression tests) and 68 frontend tests pass, and the frontend type-checks, builds and lints. The UI was driven in a real browser against the real backend: creating an incident, starting an investigation, opening an evidence record and a cited runbook passage, approving a proposal, reloading the page (state came back from the server), the abstained state, run history, and an unknown run. The stale-telemetry scenario abstains in about a second, and a missing API key produces a clear error rather than a crash. Earlier (Phase 00 to 08) a fresh clone from GitHub installed and passed the tests.
-
-**What has not been verified:** the real Claude adapter has **never been run against the live API**. Every model response in the tests is a mock, so the end-to-end path "real model → validated report" is unproven, and the request shape (structured output, effort, refusal fallbacks) was written from the SDK documentation and tested only against a fake client. Please try it once with your own key before relying on it. The scenarios that need the model (inference slowdown, link instability) have only been run with scripted mock answers, including in the browser check above (the model was a scripted stand-in; everything else was real). The page layout was checked by measuring it at desktop and phone widths, not by looking at screenshots, because the browser pane could not capture them. There is no evaluation of answer quality: the Phase 10 evaluation scripts the model, so it measures the safeguards around it, not Claude (see Evaluation).
+**Does not**
+- Execute anything. There is no execution code; approving a proposal records a decision and nothing else.
+- Connect to real infrastructure, train a model, or use multiple agents.
+- Claim to find a real root cause. Hypotheses are suggestions for a human to review.
+- Authenticate users, limit request rates, or claim production accuracy.
 
 ## How it works
 
-```
-POST /api/incidents/{id}/runs  (returns 202 at once; work runs in the background)
-        |
-  load incident -> validate host scope and limits -> collect telemetry (read-only tools)
-        -> check freshness -> persist evidence -> retrieve documents
-        -> investigator (one model call, after a server-side abstention gate)
-        -> apply policy to the suggested next step -> persist report
-        |
-  COMPLETE | ABSTAINED | WAITING_APPROVAL | FAILED | CANCELLED
-```
-
-The trusted backend, not the model, decides what is allowed:
-
-- **Tools.** Exactly three read-only telemetry tools plus `search_docs`. Every input is validated and bounded; unknown hosts, out-of-scope hosts and unregistered tool names are rejected. Results say whether a reading is `ok`, `no_data`, `stale` (judged by observation time), a `timeout`, an `error`, `rejected` or `malformed`. A missing value is never treated as zero.
-- **Abstention gate.** If an affected host has no fresh metrics, or no peer has any to compare against, the run abstains *before* the model is called (and the model client is not even created).
-- **Model output is never trusted.** It is parsed against a strict schema; every evidence ID and document chunk ID must exist in this run; proposed hosts must be affected hosts, not peers; shell-like or write/deploy proposals and hypotheses worded as established fact are rejected. Log and document text reaches the model only as quoted data and is marked untrusted.
-- **Policy.** Plain Python rules classify the next step as `read_only_diagnostic`, `controlled_test` or `write_or_deploy` from its wording. Unrecognised wording is never assumed safe, and the model's own label can only make the class stricter. Anything above read-only parks the run in `WAITING_APPROVAL`.
-- **Approvals.** Each proposal has a version and a SHA-256 hash over its text, parameters, scope, risk class and the content of its evidence. A decision must carry that hash, so an approval cannot be reused after any change. Proposals expire (24 hours by default). Decisions are idempotent and stored with actor, time, reason and hash. Approving or rejecting only records a decision.
-- **Reliability.** Stage events are stored in order and can be replayed after a refresh. Duplicate starts are blocked in the database. A run can execute only once. Failures end as `FAILED` with a typed code and a safe message; unexpected errors are logged on the server and shown only as `internal_error`.
-
-## Quick start
-
-Prerequisites: Python 3.11+ and Node 20+.
-
-Backend (from `backend/`):
-
-```bash
-python -m venv .venv
-.venv/Scripts/python -m pip install --upgrade pip      # on macOS/Linux use .venv/bin/python
-.venv/Scripts/python -m pip install -e ".[dev]"
-.venv/Scripts/python -m pytest
-.venv/Scripts/python -m uvicorn app.main:app --port 8000
+```mermaid
+flowchart LR
+    UI[React UI] -->|HTTP| API[FastAPI]
+    API --> WF[Workflow<br/>fixed stages + limits]
+    WF --> T[Read-only tools] --> F[(Synthetic fixtures<br/>and runbooks)]
+    WF --> G{Fresh evidence?}
+    G -- no --> A[Abstain<br/>no model call]
+    G -- yes --> M[Model: one request] --> V[Validate every ID,<br/>scope and wording]
+    V --> P[Policy: risk class<br/>and approval]
+    A --> S[(SQLite)]
+    P --> S
+    S --> API
 ```
 
-Frontend (from `frontend/`, with the backend running):
+The full design, with diagrams of one investigation and the run states, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The model is a provider behind one interface: the Anthropic API, a **scripted demo model** (a fixed script for trying the app without a key; it is not an AI and every page it touches says so), or a mock used by tests.
 
-```bash
-npm install
-npm run dev      # http://localhost:5173
-npm test         # 68 tests (vitest, jsdom)
-npm run build    # type-check and production build
-npm run lint
-```
+## Technology
 
-Interactive API docs are at `http://localhost:8000/docs`.
+Python 3.11+ with FastAPI, Pydantic and SQLite; React, TypeScript and Vite; pytest and vitest; lexical (BM25) retrieval; the Anthropic SDK behind an adapter. No Docker, no embeddings, no vector database.
 
-### Security and reliability
+## Prerequisites
 
-[docs/security/THREAT_REVIEW.md](docs/security/THREAT_REVIEW.md) is the Phase 11 review: how it was done (probe each suspected weakness, fix only what is confirmed), the 10 issues it found and fixed, a checklist mapping every threat and control to the tests that guard it (a test fails if the document names a test that does not exist), and the risks that remain.
+Python 3.11 or newer, Node 20 or newer, and git. Developed and tested with Python 3.13 and Node 24 on Windows.
+An Anthropic API key is **optional**: the demo model needs none.
 
-What the backend now does: bounds every query integer and body size (HTTP 413 over 64 KiB), rejects control characters in text fields, sends `nosniff` / `no-store` / `X-Frame-Options` / `Referrer-Policy` headers on every response, turns unexpected errors into a safe `internal_error` or `database_unavailable` response with no detail, redacts secrets from the final text of every log line (including tracebacks and uvicorn's own logs, and the configured API key in any format), caps the model call by the run's remaining time so a run cannot outlive its limit, and closes runs that a server restart interrupted. Dependency checks (`pip-audit`, `npm audit`) were clean at review time. This is hardening of a local demo, not a clearance to deploy it.
+## Install and run
 
-### Evaluation
+**1. Backend** (from `backend/`). Pinned versions are in `requirements-lock.txt`:
 
 ```bash
 cd backend
-.venv/Scripts/python -m evals                  # run all 27 cases and print the metrics
-.venv/Scripts/python -m evals --case E03       # one case
-.venv/Scripts/python -m evals --write-report   # regenerate docs/evaluation/EVAL_REPORT.md
-.venv/Scripts/python -m evals.live             # OPTIONAL: real model, real (billed) requests, needs an API key
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip          # Windows: .venv\Scripts\python
+.venv/bin/python -m pip install -r requirements-lock.txt
+.venv/bin/python -m pip install -e . --no-deps
 ```
 
-The dataset (`backend/data/evals/dataset.v1.json`) has 27 cases covering: normal inference slowdown, isolated network instability, stale telemetry, missing telemetry, contradictory metrics, irrelevant and absent documentation, unknown host, tool timeout, malicious instructions in logs (model resists and model obeys), a fabricated evidence ID, risky proposals, a proposal changed after approval, an expired approval, an unauthorised reviewer, a duplicate start, a malformed model response and a provider outage. Each case defines its expected behaviour in the dataset, outside anything the model sees (the runner also checks that no case ID or answer key appears in a prompt).
+(Or `pip install -e ".[dev]"` to take the newest versions allowed by `pyproject.toml`.)
 
-Each case runs through the real application (HTTP API, workflow, policy, database) with a **scripted** model: one good answer, or one specific kind of bad answer. So the evaluation measures the **safeguards around the model**, not the model. Current result: all 27 cases pass, and the critical safety metrics are at full count (for example: 4/4 stale, missing, timed-out or contradictory cases abstained; 4/4 bad-input cases stopped before the model was called; 2/2 fabricated IDs rejected; 3/3 out-of-scope proposals blocked; 2/2 risky proposals paused or blocked; 0 approvals without a recorded decision). Read the denominators: these are counts out of small totals on one synthetic fixture per scenario, written alongside the safeguards they test. They are not statistically meaningful and are not an accuracy estimate. The full report, with one known gap the system does not catch (an irrelevant but retrieved document is accepted as a citation), is in [docs/evaluation/EVAL_REPORT.md](docs/evaluation/EVAL_REPORT.md). A test checks that the report is up to date, and other tests break a safeguard on purpose to prove the evaluation fails when it should.
+**2. Frontend** (from `frontend/`):
 
-What is **not** done: the manual claim-support review ([rubric](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md)) needs real model output, so it has not been done and its results log is empty; the live smoke test needs an API key and has not been run; latency and token cost are therefore not reported.
+```bash
+cd frontend
+npm ci
+```
 
-### Use the UI
+**3. Start the backend** with the scripted demo model, so no API key is needed:
 
-Open `http://localhost:5173` with the backend running.
+```bash
+cd backend
+FABRICOPS_LLM_PROVIDER=demo .venv/bin/python -m uvicorn app.main:app --port 8000
+```
 
-1. **Incidents:** pick a built-in scenario (the form is pre-filled from it) and create an incident.
-2. **Start investigation** on the incident page. The run page updates by itself while it works.
-3. **Read the result.** Facts from the evidence, hypotheses (with what supports and what argues against them), limitations, and what is missing are shown separately. Click any evidence or documentation ID to open the actual stored record or runbook passage; an ID that does not resolve is flagged, not hidden.
-4. **Review the proposed next step.** It shows the policy-assigned risk class and, when approval is needed, a form for the demo reviewer. Approving or rejecting only records a decision.
-5. **Run history** lists every investigation. A page refresh reloads everything from the server.
+Windows PowerShell:
 
-Without an API key the stale-telemetry scenario still works (it abstains before the model is needed); the other two end with a clear "no API credentials" failure.
+```powershell
+cd backend
+$env:FABRICOPS_LLM_PROVIDER = "demo"
+.venv\Scripts\python -m uvicorn app.main:app --port 8000
+```
 
-### Try an investigation from the command line
+**4. Start the frontend** (a second terminal):
 
-The stale-telemetry scenario needs no API key. From any shell:
+```bash
+cd frontend
+npm run dev
+```
+
+Open <http://localhost:5173>. Interactive API docs are at <http://localhost:8000/docs>. A data file is created at `backend/data/fabricops.db` on first use; delete it to start fresh.
+
+**With a real model instead:** leave out `FABRICOPS_LLM_PROVIDER=demo` and set `FABRICOPS_LLM_API_KEY` (or `ANTHROPIC_API_KEY`) in the backend's environment or in `backend/.env`. The Anthropic path is covered by unit tests against a fake client but **has never been run against the live API** by the project's author. Without either a key or the demo model, the stale-telemetry scenario still works (it abstains before a model is needed) and the other two end in a clear "no API credentials" failure.
+
+## Environment variables
+
+Copy the backend lines of [.env.example](.env.example) to `backend/.env` (run the backend from `backend/` so it finds it) and the frontend line to `frontend/.env`. Real `.env` files are git-ignored. Everything has a default.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `FABRICOPS_LLM_PROVIDER` | `anthropic` | `anthropic`, `demo` (scripted, not an AI) or `mock` |
+| `FABRICOPS_LLM_API_KEY` | unset | Falls back to `ANTHROPIC_API_KEY`. Backend only; never sent to the browser |
+| `FABRICOPS_LLM_MODEL` | `claude-opus-5-5` | Model for real investigations |
+| `FABRICOPS_LLM_EFFORT`, `_MAX_TOKENS`, `_TIMEOUT_SECONDS`, `_MAX_ATTEMPTS`, `_ENABLE_FALLBACKS` | `high`, 8000, 120, 3, `true` | Model request settings; retries are for transient errors only |
+| `FABRICOPS_DATABASE_PATH` | `backend/data/fabricops.db` | SQLite file |
+| `FABRICOPS_CORS_ORIGINS` | local Vite origins | Browser origins allowed to call the API |
+| `FABRICOPS_MAX_REQUEST_BYTES` | 65536 | Largest request body (larger gets HTTP 413) |
+| `FABRICOPS_DEMO_REVIEWERS` | `demo-reviewer` | Names allowed to approve or reject (a demo stand-in, not authentication) |
+| `FABRICOPS_APPROVAL_TTL_MINUTES` | 1440 | How long a pending proposal can be decided |
+| `VITE_API_BASE_URL` (frontend) | `http://localhost:8000` | Where the UI finds the backend |
+
+Workflow limits (tool calls, hosts, time range, evidence records, document chunks, output size, run time) are in `WorkflowLimits` in `backend/app/workflow/engine.py`.
+
+## Use it
+
+1. **Incidents:** pick a built-in scenario (the form fills itself in) and **Create incident**.
+2. **Start investigation.** The run page updates by itself.
+3. **Read the result:** facts, hypotheses with counterevidence, limitations, and what is missing are separate. Click any evidence or documentation ID to open the stored record or the exact runbook passage.
+4. **Review the proposal.** It shows the risk class the backend assigned and, when approval is needed, a form for the demo reviewer.
+5. **Run history** lists everything; a refresh reloads it all from the server.
+
+A guided five-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). The three built-in scenarios are *inference slowdown* (one host, healthy peers; ends waiting for approval), *isolated link instability* (one host, healthy peers; read-only proposal) and *stale or missing telemetry* (abstains).
+
+From the command line (no model needed for this scenario; use `python3` if `python` is not found):
 
 ```bash
 API=http://localhost:8000
@@ -141,89 +159,89 @@ curl -s $API/api/runs/$RUN/report     # lists exactly what evidence is missing
 curl -s $API/api/runs/$RUN/events     # every stage, in order
 ```
 
-The other two scenarios (`inference_slowdown` with host `gpu-h07`, `link_instability` with host `net-h01`) call the model, so they need `FABRICOPS_LLM_API_KEY` (or `ANTHROPIC_API_KEY`) in `backend/.env`. Without a key the run ends `FAILED` with a message naming the missing setting.
+| | |
+|---|---|
+| ![Create an incident from a built-in scenario](docs/images/01-incidents.png) | ![An abstained run listing what is missing](docs/images/03-run-abstained.png) |
 
-## API
+## API overview
+
+Errors share one shape: `{"error": {"code", "message", "details": [{"field", "message"}]}}`. There are no update or delete routes.
 
 | Method and path | Purpose |
 |---|---|
 | `GET /health` | Service status |
-| `POST /api/incidents` | Create an incident (server generates `id` and `created_at`; always synthetic) |
-| `GET /api/incidents?limit=&offset=` | List incidents, newest first |
-| `GET /api/incidents/{id}` | Read one incident |
-| `GET /api/incidents/{id}/runs` | List runs for an incident |
-| `POST /api/incidents/{id}/runs` | Start an investigation (202). Optional `Idempotency-Key` header. A repeat, or an investigation already in flight, returns the existing run (200) |
-| `GET /api/runs?limit=&offset=` | Run history across all incidents, newest first |
-| `GET /api/runs/{id}` | Read one run |
-| `GET /api/runs/{id}/events?after_seq=` | Ordered events; pass the last `seq` seen to resume after a refresh |
+| `GET /api/scenarios` | The built-in synthetic scenarios |
+| `POST /api/incidents`, `GET /api/incidents`, `GET /api/incidents/{id}` | Create (server sets `id` and `created_at`), list, read |
+| `GET /api/incidents/{id}/runs` | Runs for an incident |
+| `POST /api/incidents/{id}/runs` | Start an investigation (202). Optional `Idempotency-Key`. A repeat, or one already in flight, returns the existing run (200) |
+| `GET /api/runs`, `GET /api/runs/{id}` | Run history; one run |
+| `GET /api/runs/{id}/events?after_seq=` | Ordered events; resume after a refresh |
 | `GET /api/runs/{id}/report` | The validated report (404 until one exists) |
-| `GET /api/runs/{id}/evidence`, `GET /api/runs/{id}/evidence/{evidence_id}` | The evidence records collected for the run; an ID from another run does not resolve |
-| `GET /api/documents/chunks/{chunk_id}` | Resolve a citation to its passage, source and version (superseded versions resolve, flagged) |
-| `GET /api/scenarios` | The built-in synthetic scenarios, for the incident form |
-| `GET /api/runs/{id}/proposal`, `GET /api/proposals/{id}` | The suggested next step: risk class, hash, approval status, decision. `execution_enabled` is always `false` |
-| `POST /api/proposals/{id}/decision` | Approve or reject. Needs the `X-Demo-Reviewer` header and the proposal hash the reviewer saw |
+| `GET /api/runs/{id}/evidence[/{evidence_id}]` | Evidence collected for the run; another run's IDs do not resolve |
+| `GET /api/documents/chunks/{chunk_id}` | Resolve a citation to its passage, source and version |
+| `GET /api/runs/{id}/proposal`, `GET /api/proposals/{id}` | The suggested next step: risk class, hash, status, decision. `execution_enabled` is always `false` |
+| `POST /api/proposals/{id}/decision` | Approve or reject (needs `X-Demo-Reviewer` and the proposal hash the reviewer saw) |
 
-Errors share one shape: `{"error": {"code", "message", "details": [{"field", "message"}]}}`. There are no update or delete routes, so incidents are immutable. While a run waits for approval, a new start request returns that run rather than starting another.
+## Tests and evaluation
 
-## Configuration
+```bash
+cd backend
+.venv/bin/python -m pytest -q                  # 403 backend tests (includes the evaluation and security regression tests)
+.venv/bin/python -m evals                      # the 29-case evaluation and its metrics
+.venv/bin/python -m evals --write-report       # regenerate docs/evaluation/EVAL_REPORT.md
+.venv/bin/python -m evals.live                 # OPTIONAL: real model, real (billed) requests, needs an API key; not run by the author
 
-Copy the relevant block of [.env.example](.env.example) to `backend/.env` and `frontend/.env`. Real `.env` files are git-ignored. Run the backend from `backend/` so it finds its `.env`.
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `FABRICOPS_DATABASE_PATH` | `backend/data/fabricops.db` | SQLite file (created on first use) |
-| `FABRICOPS_CORS_ORIGINS` | local Vite origins | Browser origins allowed to call the API |
-| `FABRICOPS_LLM_PROVIDER` | `anthropic` | `anthropic` or `mock` |
-| `FABRICOPS_LLM_API_KEY` | unset | Falls back to `ANTHROPIC_API_KEY`. Backend only |
-| `FABRICOPS_LLM_MODEL` | `claude-opus-5-5` | Model used for investigations |
-| `FABRICOPS_LLM_EFFORT`, `_MAX_TOKENS`, `_TIMEOUT_SECONDS`, `_MAX_ATTEMPTS`, `_ENABLE_FALLBACKS` | `high`, 8000, 120, 3, `true` | Model request settings. Retries are for transient errors only |
-| `FABRICOPS_DEMO_REVIEWERS` | `demo-reviewer` | Names allowed to approve or reject (comma-separated) |
-| `FABRICOPS_APPROVAL_TTL_MINUTES` | 1440 | How long a pending proposal can be decided |
-| `FABRICOPS_MAX_REQUEST_BYTES` | 65536 | Largest request body accepted (larger gets HTTP 413) |
-
-Workflow limits (tool calls, hosts, time range, evidence records, document chunks, output size, run time) are defined in `WorkflowLimits` in `backend/app/workflow/engine.py`.
-
-## Project layout
-
+cd ../frontend
+npm test                                       # 70 frontend tests
+npm run build                                  # type-check and production build
+npm run lint
 ```
-backend/
-  app/
-    api/         HTTP routes (no SQL here)       services/   incident, run and proposal logic
-    storage/     SQLite schema and repositories  workflow/   the bounded investigation sequence
-    schemas/     Pydantic domain models          llm/        provider interface, prompt, validator, investigator
-    tools/       read-only telemetry tools       policy/     deterministic risk classification and hashing
-    retrieval/   chunker, BM25 index, search     domain/     fixture loader, run state machine
-  data/
-    fixtures/    three synthetic scenarios       docs/       synthetic runbooks and manifest
-    evals/       answer keys and the evaluation dataset (never read at runtime)
-  tests/         383 tests (the evaluation cases run as 27 of them)
-  evals/         evaluation runner, scripted model behaviours, metrics, report generator, optional live smoke test
-frontend/        React + TypeScript + Vite: src/api (typed client), src/pages, src/components, tests beside the code (68 tests)
-docs/            specification, build guide, per-phase instructions, baseline audit, evaluation report, claim-support rubric and security review
-```
+
+**What the evaluation is.** 29 cases, each with its expected behaviour written in `backend/data/evals/dataset.v1.json`, outside anything a model sees. Each runs through the real application with a **scripted** model (a good answer, or one specific kind of bad answer), so it measures the *safeguards around the model*, not the model. All 29 pass and the critical safety metrics are at full count (for example 4/4 bad-data cases abstained, 4/4 stopped before the model, 2/2 fabricated IDs rejected, 3/3 out-of-scope proposals blocked). These are counts out of small totals on one synthetic fixture per scenario, written alongside the safeguards they test: they are **not statistically meaningful and not an accuracy estimate**. See [docs/evaluation/EVAL_REPORT.md](docs/evaluation/EVAL_REPORT.md), which also lists a known gap (an irrelevant but retrieved document is accepted as a citation). Whether the model's claims are actually supported needs a person: [the rubric](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md) exists, **no review has been done**, and latency and token cost are not reported.
+
+## Project status
+
+Phases 00 to 12 of the [build guide](docs/guide/phases) are complete. Each phase is one milestone commit in the history. See [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) for what was verified and how, [docs/ACCEPTANCE_REVIEW.md](docs/ACCEPTANCE_REVIEW.md) for the review against every acceptance gate, and [docs/guide/CHECKLIST.md](docs/guide/CHECKLIST.md).
 
 ## Known limitations
 
-- **The real model path is unproven** (see Status). The evaluation scripts the model, so there is no measurement of answer quality, and no manual claim-support review has been done.
-- **UI scope:** it polls (every second while a run is active, every 10 seconds while one waits for approval) rather than streaming, uses hash routing, and shows every evidence record for a run in one table. There is no sign-in. Chart and trend views are out of scope.
-- **Approval identity is a demo stand-in.** Reviewers are names in a request header; anyone who can reach the API can send one. It is not authentication, and the API as a whole has no authentication.
-- **No rate limiting or quotas.** A client can create unlimited incidents and runs; with a real API key that means billed model calls.
-- **Single process.** If the server stops mid-run, the next start closes that run as `FAILED` (`interrupted`). That is right for one local server and wrong for several workers; background work is in-process too.
-- **Prompt injection cannot expand what the system does, but can still sway what the model writes.** Labelling, evidence links and human review are the defence there. More in the [security review](docs/security/THREAT_REVIEW.md), which lists every unresolved risk.
-- **Policy classification is keyword-based**, tuned on a small set of examples. It errs toward requiring approval and can misjudge unusual phrasing. Whether a cited passage is actually *relevant* to a claim is not machine-checked; only that it exists and was retrieved for the run.
+- **The real model path is unproven.** The Anthropic adapter and the request shape (structured output, effort, refusal fallbacks) were written from the SDK documentation and tested only against a fake client. The inference-slowdown and link-instability scenarios have been run only with scripted or mock answers.
+- **No measurement of answer quality** and no manual claim-support review (see above).
+- **Citation relevance is not machine-checked.** Only that a cited passage exists and was retrieved for the run.
+- **The risk policy is keyword-based.** It errs toward requiring approval but can misjudge unusual wording. The real backstop is that nothing is ever executed.
 - **Retrieval is a lexical baseline** tested on a handful of curated queries; very short queries can match weakly.
-- **Incidents draw their data from the fixture matching their scenario type**; there is no live telemetry connector by design. Host IDs are checked against the scenario's inventory when a run starts, not when the incident is created.
-- **Dependencies:** Python dependencies are version-ranged but there is no lock file yet (Phase 12). `npm audit` currently reports no vulnerabilities.
+- **Data is synthetic and clean.** Noisy, very large or real telemetry is untested. Incidents take their data from the fixture matching their scenario type, and host IDs are checked against the scenario's inventory when a run starts.
+- **UI scope:** it polls rather than streams, uses hash routing, and has no sign-in. The page layout was checked by measuring it at desktop and phone widths and by screenshots in one browser engine.
+- **The Python lock file** was generated on one platform (Windows, Python 3.13); other platforms may resolve platform-specific extras differently. The frontend lock file is `package-lock.json`.
+
+## Security limitations
+
+The full review, with the 10 issues it fixed and the checklist of threats and the tests that guard them, is [docs/security/THREAT_REVIEW.md](docs/security/THREAT_REVIEW.md). In short, **not safe to expose to a network**:
+
+- **No authentication.** Anyone who can reach the API can create runs and, by sending the `X-Demo-Reviewer` header, approve or reject proposals. The reviewer list is a demo stand-in.
+- **No rate limiting or quotas**, so a client can create unlimited incidents and runs (and, with a real key, billed model calls).
+- **No TLS, CSP or HSTS** from the app; the API sends `nosniff`, `no-store`, `X-Frame-Options` and `Referrer-Policy` headers. Use a reverse proxy for anything beyond localhost.
+- **Prompt injection cannot expand what the system does** (tools, hosts, actions are fixed and checked in code), **but it can still sway what the model writes.** Labelling, evidence links and human review are the defence there.
+- **Single process.** Startup closes interrupted runs, which is right for one local server and wrong for several workers.
+- **Log redaction is pattern-based**; the database is an unencrypted local file (synthetic data only).
+
+## Future work
+
+Real login and per-user authorisation for approvals; rate limiting; a run of the evaluation and the claim-support review against the live model, with latency and cost; a relevance check for citations; a larger, independently written evaluation set; streaming updates instead of polling; a live, read-only telemetry connector (the tools already take an adapter); embeddings only if the lexical baseline is shown to fail on measured cases; packaging (Docker) and a deployment guide with TLS.
+
+## Repository layout
+
+```
+backend/
+  app/            api, services, storage, schemas, tools, retrieval, llm, policy, workflow, domain, core
+  data/           fixtures (3 scenarios), docs (synthetic runbooks), evals (answer keys + dataset)
+  evals/          evaluation runner, scripted behaviours, metrics, report, optional live smoke test
+  tests/          403 tests
+  requirements-lock.txt   pinned Python versions
+frontend/         React + TypeScript + Vite UI, with tests beside the code
+docs/             ARCHITECTURE, DEMO_SCRIPT, RELEASE_NOTES, ACCEPTANCE_REVIEW, evaluation/, security/, guide/, images/
+```
 
 ## Documentation
 
-- [docs/mvp.md](docs/mvp.md): MVP specification, scenarios and the investigation output contract
-- [docs/guide/CHECKLIST.md](docs/guide/CHECKLIST.md): progress checklist
-- [docs/guide/01_AI_CODING_RULES.md](docs/guide/01_AI_CODING_RULES.md): rules for AI coding assistants working on this repository
-- [docs/guide/02_ARCHITECTURE.md](docs/guide/02_ARCHITECTURE.md): target architecture, entities, run state machine
-- [docs/guide/03_MILESTONES_AND_ACCEPTANCE.md](docs/guide/03_MILESTONES_AND_ACCEPTANCE.md): phase gates and final acceptance checklist
-- [docs/guide/phases](docs/guide/phases): per-phase build instructions
-- [docs/security/THREAT_REVIEW.md](docs/security/THREAT_REVIEW.md): the security and reliability review, with unresolved risks
-- [docs/evaluation/EVAL_REPORT.md](docs/evaluation/EVAL_REPORT.md) and [docs/evaluation/CLAIM_SUPPORT_RUBRIC.md](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md): evaluation results and how to review claim support by hand
-- [docs/project/BASELINE_AUDIT.md](docs/project/BASELINE_AUDIT.md): the Phase 00 starting-point snapshot
-- [docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf](docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf): the original roadmap (an earlier 14-step plan, superseded by the phases above)
+[Architecture](docs/ARCHITECTURE.md) · [Demo script](docs/DEMO_SCRIPT.md) · [Release notes](docs/RELEASE_NOTES.md) · [Acceptance review](docs/ACCEPTANCE_REVIEW.md) · [Security review](docs/security/THREAT_REVIEW.md) · [Evaluation report](docs/evaluation/EVAL_REPORT.md) · [Claim-support rubric](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md) · [MVP specification](docs/mvp.md) · [Build guide](docs/guide) · [Phase 00 baseline audit](docs/project/BASELINE_AUDIT.md) · [Original roadmap (PDF, an earlier 14-step plan)](docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf)

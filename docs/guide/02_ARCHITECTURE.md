@@ -1,5 +1,7 @@
 # 02 --- Target Architecture
 
+> **This is the original target design from the build guide.** For what was actually built, with diagrams and a list of differences, see [../ARCHITECTURE.md](../ARCHITECTURE.md).
+
 ## 1. High-level architecture
 
 ``` text

@@ -82,6 +82,8 @@ class Expected(StrictModel):
     # A weakness that the system does NOT catch today. The case asserts today's behaviour, and the
     # report lists it, so it cannot be forgotten and a future fix shows up as a change.
     known_gap: str | None = None
+    # The report must say, in its limitations, that a scripted model (not an AI) wrote it.
+    demo_model_labelled: bool = False
 
 
 class EvalCase(StrictModel):

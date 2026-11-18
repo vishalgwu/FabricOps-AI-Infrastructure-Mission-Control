@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # SQLite file. Defaults to backend/data/fabricops.db (git-ignored).
     database_path: str = str(Path(__file__).resolve().parents[2] / "data" / "fabricops.db")
     # --- LLM provider (backend only; never exposed to the browser) ---
-    llm_provider: str = "anthropic"            # "anthropic" or "mock"
+    llm_provider: str = "anthropic"            # "anthropic", "demo" (a SCRIPTED model, not an AI) or "mock"
     llm_model: str = "claude-opus-5-5"
     # If unset, the Anthropic SDK falls back to ANTHROPIC_API_KEY / an `ant auth login` profile.
     llm_api_key: SecretStr | None = None

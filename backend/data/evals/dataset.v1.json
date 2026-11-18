@@ -64,6 +64,32 @@
       }
     },
     {
+      "id": "E28", "title": "Scripted demo model, inference slowdown (the demo path works end to end)", "covers": "Demo scenarios are reproducible",
+      "scenario": "inference_slowdown", "affected_hosts": ["gpu-h07"], "behavior": "scripted_demo",
+      "expected": {
+        "run_status": "WAITING_APPROVAL", "model_calls": 1, "report": "present", "insufficient_evidence": false,
+        "citations_valid": true, "citations": "some",
+        "must_retrieve": [
+          {"host": "gpu-h07", "metric": "kv_cache_used_pct"}, {"host": "gpu-h08", "metric": "kv_cache_used_pct"},
+          {"host": "gpu-h07", "metric": "request_latency_p95"}
+        ],
+        "both_sources_present": {"host": "gpu-h07", "metric": "gpu_memory_used", "sources": ["dcgm-synthetic", "node-agent-synthetic"]},
+        "proposal": {"risk_class": "controlled_test", "approval_status": "pending", "scope": ["gpu-h07"]},
+        "demo_model_labelled": true
+      }
+    },
+    {
+      "id": "E29", "title": "Scripted demo model, link instability (the demo path works end to end)", "covers": "Demo scenarios are reproducible",
+      "scenario": "link_instability", "affected_hosts": ["net-h01"], "behavior": "scripted_demo",
+      "expected": {
+        "run_status": "COMPLETE", "model_calls": 1, "report": "present", "insufficient_evidence": false,
+        "citations_valid": true, "citations": "some",
+        "must_retrieve": [{"host": "net-h01", "metric": "link_error_count"}, {"host": "net-h02", "metric": "link_error_count"}],
+        "proposal": {"risk_class": "read_only_diagnostic", "approval_status": "not_required", "scope": ["net-h01"]},
+        "demo_model_labelled": true
+      }
+    },
+    {
       "id": "E27", "title": "Model cites an irrelevant document that WAS retrieved", "covers": "Irrelevant documentation",
       "scenario": "inference_slowdown", "affected_hosts": ["gpu-h07"], "behavior": "cites_irrelevant_doc", "docs": "off_topic",
       "expected": {
