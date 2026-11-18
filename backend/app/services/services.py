@@ -87,6 +87,9 @@ class RunService:
             raise NotFoundError(f"incident '{incident_id}' not found")
         return self._runs.list_for_incident(incident_id)
 
+    def list_recent(self, limit: int, offset: int):
+        return self._runs.list_recent(limit, offset)
+
     def events(self, run_id: str, after_seq: int = 0) -> list[dict]:
         self.get(run_id)
         return self._runs.events(run_id, after_seq)

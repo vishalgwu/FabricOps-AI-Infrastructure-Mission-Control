@@ -25,7 +25,7 @@ verifying it.
 ## Safe experience
 
 -   [x] Phase 08: deterministic policy and approvals
--   [ ] Phase 09: frontend and history
+-   [x] Phase 09: frontend and history
 
 ## Quality and release
 
@@ -39,7 +39,7 @@ verifying it.
 -   [ ] All automated tests pass
 -   [ ] Three scenarios demonstrated
 -   [x] Stale telemetry abstention demonstrated
--   [ ] Evidence citations resolve
+-   [x] Evidence citations resolve (server-checked and openable in the UI)
 -   [x] Approval decision persists
 -   [x] No production remediation exists
 -   [ ] README matches verified implementation

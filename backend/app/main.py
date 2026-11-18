@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, incidents, proposals, runs
+from app.api import catalog, health, incidents, proposals, runs
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers
 from app.core.logging import configure_logging
@@ -27,11 +27,14 @@ def create_app(database_path: str | None = None, provider=None, workflow_limits=
     app.state.workflow_limits = workflow_limits or WorkflowLimits()
     app.state.clock = clock or (lambda: datetime.now(timezone.utc))
     app.state.reviewers = reviewers          # None means use FABRICOPS_DEMO_REVIEWERS
+    app.state.fixtures = None                # loaded lazily
+    app.state.docs = None                    # loaded lazily
     app.state.workflow = None                # built lazily on first use
     install_error_handlers(app)
     app.include_router(health.router)
     app.include_router(incidents.router)
     app.include_router(runs.router)
+    app.include_router(catalog.router)
     app.include_router(proposals.router)
     return app
 

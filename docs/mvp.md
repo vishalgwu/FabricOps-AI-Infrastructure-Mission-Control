@@ -1,6 +1,6 @@
 # FabricOps MVP Specification
 
-Status: **Specification. Phases 00 to 08 of the build are implemented and tested against synthetic fixtures with a mock model** (see section 5 for exactly what is and is not built). The UI, evaluation harness, hardening and release work (Phases 09 to 12) are not built yet.
+Status: **Specification. Phases 00 to 09 of the build are implemented and tested against synthetic fixtures with a mock model** (see section 5 for exactly what is and is not built). The evaluation harness, hardening and release work (Phases 10 to 12) are not built yet.
 
 All data in the MVP is **synthetic**. The MVP is **proposal-only**: no unattended production remediation, no shell execution, no host restarts, no deployments.
 
@@ -93,10 +93,11 @@ Invariants:
 
 | Claim | Status |
 |---|---|
-| Visual prototype with scripted responses exists | **No.** No prototype exists; an earlier README mentioned one by mistake. The UI is built from scratch in Phase 09. |
+| Visual prototype with scripted responses exists | **No.** No prototype exists; an earlier README mentioned one by mistake. The UI was built from scratch in Phase 09. |
 | Typed read-only telemetry tools; versioned document retrieval with citations; validated LLM investigator; bounded, idempotent workflow with replayable events; deterministic policy and approvals | **Implemented** (Phases 04 to 08) and covered by automated tests on synthetic fixtures. The model is mocked in tests: the real Claude adapter has not been run against the live API. |
 | Reviewer identity for approvals | **Demo stand-in only** (a request header naming a configured demo reviewer). Not authentication. |
-| Mission-control UI, evaluation harness with reported results, security and reliability hardening, release and demo | **Not implemented** (Phases 09 to 12). |
+| Mission-control UI (incident intake, run timeline, evidence and citation viewers, report with facts / hypotheses / limitations, proposal and approval panel, run history) | **Implemented** (Phase 09), covered by frontend tests and checked in a browser against the real backend with a scripted model. |
+| Evaluation harness with reported results, security and reliability hardening, release and demo | **Not implemented** (Phases 10 to 12). |
 
 ## 6. Specification gate check
 

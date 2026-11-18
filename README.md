@@ -20,7 +20,7 @@ Three synthetic scenarios are built in: **inference slowdown** (one host, health
 
 ## Status
 
-This is a work in progress. The backend is built through Phase 08; the UI and the evaluation, hardening and release work are not.
+This is a work in progress. The backend and the UI are built (Phases 00 to 09). Evaluation, hardening and release work (Phases 10 to 12) are not.
 
 | Phase | What | State |
 |---|---|---|
@@ -33,14 +33,14 @@ This is a work in progress. The backend is built through Phase 08; the UI and th
 | 06 | LLM investigator behind a provider interface | Done, but see below |
 | 07 | Bounded, idempotent investigation workflow | Done |
 | 08 | Deterministic policy, hashed proposals, approvals | Done |
-| 09 | Mission-control UI and history | **Not started** (the frontend is still a health-check page) |
+| 09 | Mission-control UI and history | Done, but see below |
 | 10 | Evaluation with reported results | **Not started** |
 | 11 | Security and reliability hardening | **Not started** |
 | 12 | Release, demo script, fresh-clone proof | **Not started** |
 
-**What has been verified:** 273 automated backend tests pass; a fresh clone from GitHub installs, passes the tests, and the frontend installs, builds and lints; a live server was exercised over HTTP (the stale-telemetry scenario abstains in about a second, a repeated start with the same idempotency key returns the same run, and a missing API key produces a clear error rather than a crash).
+**What has been verified:** 286 automated backend tests and 64 frontend tests pass, and the frontend type-checks, builds and lints. The UI was driven in a real browser against the real backend: creating an incident, starting an investigation, opening an evidence record and a cited runbook passage, approving a proposal, reloading the page (state came back from the server), the abstained state, run history, and an unknown run. The stale-telemetry scenario abstains in about a second, and a missing API key produces a clear error rather than a crash. Earlier (Phase 00 to 08) a fresh clone from GitHub installed and passed the tests.
 
-**What has not been verified:** the real Claude adapter has **never been run against the live API**. Every model response in the tests is a mock, so the end-to-end path "real model → validated report" is unproven, and the request shape (structured output, effort, refusal fallbacks) was written from the SDK documentation and tested only against a fake client. Please try it once with your own key before relying on it. The scenarios that need the model (inference slowdown, link instability) have only been run with scripted mock answers. There are no frontend tests, and there is no evaluation of answer quality yet (Phase 10).
+**What has not been verified:** the real Claude adapter has **never been run against the live API**. Every model response in the tests is a mock, so the end-to-end path "real model → validated report" is unproven, and the request shape (structured output, effort, refusal fallbacks) was written from the SDK documentation and tested only against a fake client. Please try it once with your own key before relying on it. The scenarios that need the model (inference slowdown, link instability) have only been run with scripted mock answers, including in the browser check above (the model was a scripted stand-in; everything else was real). The page layout was checked by measuring it at desktop and phone widths, not by looking at screenshots, because the browser pane could not capture them. There is no evaluation of answer quality yet (Phase 10).
 
 ## How it works
 
@@ -81,14 +81,27 @@ Frontend (from `frontend/`, with the backend running):
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173 (health-check page only for now)
-npm run build
+npm run dev      # http://localhost:5173
+npm test         # 64 tests (vitest, jsdom)
+npm run build    # type-check and production build
 npm run lint
 ```
 
 Interactive API docs are at `http://localhost:8000/docs`.
 
-### Try an investigation
+### Use the UI
+
+Open `http://localhost:5173` with the backend running.
+
+1. **Incidents:** pick a built-in scenario (the form is pre-filled from it) and create an incident.
+2. **Start investigation** on the incident page. The run page updates by itself while it works.
+3. **Read the result.** Facts from the evidence, hypotheses (with what supports and what argues against them), limitations, and what is missing are shown separately. Click any evidence or documentation ID to open the actual stored record or runbook passage; an ID that does not resolve is flagged, not hidden.
+4. **Review the proposed next step.** It shows the policy-assigned risk class and, when approval is needed, a form for the demo reviewer. Approving or rejecting only records a decision.
+5. **Run history** lists every investigation. A page refresh reloads everything from the server.
+
+Without an API key the stale-telemetry scenario still works (it abstains before the model is needed); the other two end with a clear "no API credentials" failure.
+
+### Try an investigation from the command line
 
 The stale-telemetry scenario needs no API key. From any shell:
 
@@ -117,9 +130,13 @@ The other two scenarios (`inference_slowdown` with host `gpu-h07`, `link_instabi
 | `GET /api/incidents/{id}` | Read one incident |
 | `GET /api/incidents/{id}/runs` | List runs for an incident |
 | `POST /api/incidents/{id}/runs` | Start an investigation (202). Optional `Idempotency-Key` header. A repeat, or an investigation already in flight, returns the existing run (200) |
+| `GET /api/runs?limit=&offset=` | Run history across all incidents, newest first |
 | `GET /api/runs/{id}` | Read one run |
 | `GET /api/runs/{id}/events?after_seq=` | Ordered events; pass the last `seq` seen to resume after a refresh |
 | `GET /api/runs/{id}/report` | The validated report (404 until one exists) |
+| `GET /api/runs/{id}/evidence`, `GET /api/runs/{id}/evidence/{evidence_id}` | The evidence records collected for the run; an ID from another run does not resolve |
+| `GET /api/documents/chunks/{chunk_id}` | Resolve a citation to its passage, source and version (superseded versions resolve, flagged) |
+| `GET /api/scenarios` | The built-in synthetic scenarios, for the incident form |
 | `GET /api/runs/{id}/proposal`, `GET /api/proposals/{id}` | The suggested next step: risk class, hash, approval status, decision. `execution_enabled` is always `false` |
 | `POST /api/proposals/{id}/decision` | Approve or reject. Needs the `X-Demo-Reviewer` header and the proposal hash the reviewer saw |
 
@@ -155,21 +172,21 @@ backend/
   data/
     fixtures/    three synthetic scenarios       docs/       synthetic runbooks and manifest
     evals/       answer keys (never read at runtime)
-  tests/         273 tests
-frontend/        React + TypeScript + Vite (health-check page so far)
+  tests/         286 tests
+frontend/        React + TypeScript + Vite: src/api (typed client), src/pages, src/components, tests beside the code (64 tests)
 docs/            specification, build guide, per-phase instructions, baseline audit
 ```
 
 ## Known limitations
 
 - **The real model path is unproven** (see Status). No answer-quality evaluation exists yet.
-- **No UI** beyond a health-check page; use the API or `/docs`.
+- **UI scope:** it polls (every second while a run is active, every 10 seconds while one waits for approval) rather than streaming, uses hash routing, and shows every evidence record for a run in one table. There is no sign-in. Chart and trend views are out of scope.
 - **Approval identity is a demo stand-in.** Reviewers are names in a request header; anyone who can reach the API can send one. It is not authentication, and the API as a whole has no authentication.
 - **A server stop mid-run leaves that run `RUNNING`.** Recovery is planned for Phase 11. Background work uses in-process tasks, which suits one local server, not several workers.
 - **Policy classification is keyword-based**, tuned on a small set of examples. It errs toward requiring approval and can misjudge unusual phrasing. Whether a cited passage is actually *relevant* to a claim is not machine-checked; only that it exists and was retrieved for the run.
 - **Retrieval is a lexical baseline** tested on a handful of curated queries; very short queries can match weakly.
 - **Incidents draw their data from the fixture matching their scenario type**; there is no live telemetry connector by design. Host IDs are checked against the scenario's inventory when a run starts, not when the incident is created.
-- **Dependencies:** Python dependencies are version-ranged but there is no lock file yet (Phase 12), and `npm audit` reports a high-severity ReDoS advisory in `picomatch`, a transitive build-time dependency of Vite that is not shipped to browsers.
+- **Dependencies:** Python dependencies are version-ranged but there is no lock file yet (Phase 12). `npm audit` currently reports no vulnerabilities.
 
 ## Documentation
 

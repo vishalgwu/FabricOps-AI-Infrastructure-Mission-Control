@@ -43,20 +43,36 @@ def build_proposal_service(app) -> ProposalService:
     )
 
 
+def get_fixtures(request: Request):
+    app = request.app
+    if getattr(app.state, "fixtures", None) is None:
+        from app.domain.fixture_loader import load_all_fixtures
+
+        app.state.fixtures = {fx.incident.scenario_type: fx for fx in load_all_fixtures().values()}
+    return app.state.fixtures
+
+
+def get_docs(request: Request):
+    app = request.app
+    if getattr(app.state, "docs", None) is None:
+        from app.retrieval.index import load_corpus
+
+        app.state.docs = load_corpus()
+    return app.state.docs
+
+
 def get_workflow(request: Request) -> InvestigationWorkflow:
     """Build the workflow on first use (loads fixtures and the document corpus), then reuse it."""
     app = request.app
     if getattr(app.state, "workflow", None) is None:
         from app.core.config import get_settings
-        from app.domain.fixture_loader import load_all_fixtures
         from app.llm.factory import create_provider
-        from app.retrieval.index import load_corpus
 
         settings = get_settings()
-        fixtures = {fx.incident.scenario_type: fx for fx in load_all_fixtures().values()}
+        fixtures = get_fixtures(request)
         provider = app.state.provider
         app.state.workflow = InvestigationWorkflow(
-            app.state.db, fixtures, load_corpus(),
+            app.state.db, fixtures, get_docs(request),
             (lambda: provider) if provider is not None else (lambda: create_provider(settings)),
             build_proposal_service(app),
             limits=app.state.workflow_limits,

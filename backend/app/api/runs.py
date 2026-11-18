@@ -1,14 +1,40 @@
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
 
 from app.api.deps import get_db, get_run_service
 from app.core.errors import NotFoundError
-from app.schemas.domain import InvestigationReport, Run
+from app.schemas.common import ScenarioType
+from app.schemas.domain import EvidenceRecord, InvestigationReport, Run
 from app.services.services import RunService
-from app.storage.repositories import ReportRepository
-
 from app.storage.db import Database
+from app.storage.repositories import EvidenceRepository, ReportRepository
 
 router = APIRouter(prefix="/api")
+
+
+class RunSummary(Run):
+    incident_title: str
+    scenario_type: ScenarioType
+
+
+class RunList(BaseModel):
+    items: list[RunSummary]
+    total: int
+    limit: int
+    offset: int
+
+
+@router.get("/runs", response_model=RunList)
+def list_runs(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    svc: RunService = Depends(get_run_service),
+):
+    """Run history across all incidents, newest first."""
+    rows, total = svc.list_recent(limit, offset)
+    items = [RunSummary(**run.model_dump(), incident_title=title, scenario_type=scenario)
+             for run, title, scenario in rows]
+    return RunList(items=items, total=total, limit=limit, offset=offset)
 
 
 @router.get("/runs/{run_id}", response_model=Run)
@@ -35,3 +61,21 @@ def get_run_report(run_id: str, svc: RunService = Depends(get_run_service), db: 
     if report is None:
         raise NotFoundError(f"run '{run_id}' has no report (it may still be running, or it failed)")
     return report
+
+
+@router.get("/runs/{run_id}/evidence", response_model=list[EvidenceRecord])
+def list_run_evidence(run_id: str, svc: RunService = Depends(get_run_service), db: Database = Depends(get_db)):
+    """Every evidence record collected for this run (the records the report's citations point at)."""
+    svc.get(run_id)
+    return EvidenceRepository(db).list_for_run(run_id)
+
+
+@router.get("/runs/{run_id}/evidence/{evidence_id}", response_model=EvidenceRecord)
+def get_run_evidence(run_id: str, evidence_id: str, svc: RunService = Depends(get_run_service),
+                     db: Database = Depends(get_db)):
+    """Resolve one evidence ID. It must belong to this run: another run's evidence never resolves here."""
+    svc.get(run_id)
+    record = EvidenceRepository(db).get(evidence_id)
+    if record is None or record.run_id != run_id:
+        raise NotFoundError(f"evidence '{evidence_id}' not found for run '{run_id}'")
+    return record

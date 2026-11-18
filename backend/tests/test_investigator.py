@@ -466,7 +466,8 @@ def test_api_key_stays_server_side():
     assert "SECRET" not in system + user and "sk-ant" not in system + user
     src = BACKEND.parent / "frontend" / "src"
     for f in src.rglob("*"):
-        if f.is_file():
+        # Test files are not shipped to the browser (frontend/src/security.test.ts checks the rest itself).
+        if f.is_file() and ".test." not in f.name and "test" not in f.relative_to(src).parts[:-1]:
             text = f.read_text(encoding="utf-8")
             assert "LLM_API_KEY" not in text and "ANTHROPIC" not in text.upper().replace("ANTHROPIC-", ""), f
     assert "FABRICOPS_LLM_API_KEY=replace-me" in (BACKEND.parent / ".env.example").read_text(encoding="utf-8")

@@ -123,6 +123,16 @@ class RunRepository:
             row = conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
         return _run(row) if row else None
 
+    def list_recent(self, limit: int, offset: int) -> tuple[list[tuple[Run, str, str]], int]:
+        """Newest runs first, with each run's incident title and scenario type."""
+        with self._db.connect() as conn:
+            rows = conn.execute(
+                "SELECT r.*, i.title AS incident_title, i.scenario_type AS scenario_type FROM runs r"
+                " JOIN incidents i ON i.id = r.incident_id ORDER BY r.started_at DESC, r.id LIMIT ? OFFSET ?",
+                (limit, offset)).fetchall()
+            total = conn.execute("SELECT COUNT(*) FROM runs").fetchone()[0]
+        return [(_run(r), r["incident_title"], r["scenario_type"]) for r in rows], total
+
     def list_for_incident(self, incident_id: str) -> list[Run]:
         with self._db.connect() as conn:
             rows = conn.execute(

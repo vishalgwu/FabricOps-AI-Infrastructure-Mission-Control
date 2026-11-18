@@ -45,10 +45,10 @@ refresh loads persisted server state."
 
 ## Acceptance
 
--   [ ] User can create and view an incident.
--   [ ] User can start and inspect a run.
--   [ ] Evidence and citations resolve to actual records.
--   [ ] UI distinguishes facts, hypotheses and limitations.
--   [ ] Refresh preserves state.
--   [ ] Proposal decisions match backend state.
--   [ ] No secret appears in browser assets or network responses.
+-   [x] User can create and view an incident.
+-   [x] User can start and inspect a run.
+-   [x] Evidence and citations resolve to actual records.
+-   [x] UI distinguishes facts, hypotheses and limitations.
+-   [x] Refresh preserves state.
+-   [x] Proposal decisions match backend state.
+-   [x] No secret appears in browser assets or network responses.
