@@ -48,9 +48,10 @@ FabricOps is the **general investigation platform**:
 | Phase 01: runnable backend and frontend skeleton | Done: FastAPI `/health`, React status page, tests |
 | Phase 02: domain schemas and synthetic fixtures | Done: Pydantic models, 3 scenario fixtures, separate answer keys, validation tests |
 | Phase 03: SQLite persistence and incident API | Done: incidents, runs and run events persist; run state machine enforced; 57 backend tests pass |
-| Tools, retrieval, investigator, workflow, approvals, evaluation | Not started |
+| Phase 04: read-only telemetry tools | Done: `read_metrics`, `read_logs`, `read_config` over the fixture adapter; 102 backend tests pass |
+| Retrieval, investigator, workflow, approvals, evaluation | Not started |
 
-Only the skeleton, data contract and persistence exist: a health endpoint, a status page, validated schemas, synthetic fixtures, and a stored incident API. There is still no investigation capability (no tools, retrieval or model calls). There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
+Only the skeleton, data contract and persistence exist: a health endpoint, a status page, validated schemas, synthetic fixtures, and a stored incident API. There is still no investigation capability (the telemetry tools exist but nothing calls them yet; no retrieval or model calls). There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
 
 ## Roadmap
 
@@ -103,6 +104,8 @@ API (backend on port 8000; interactive docs at `/docs`):
 Errors share one shape: `{"error": {"code", "message", "details": [{"field", "message"}]}}`. There are no update or delete routes, so IDs and incidents are immutable. Runs cannot be started through the API yet (Phase 07); the run state machine is enforced in the service layer.
 
 Persistence: SQLite at `backend/data/fabricops.db` (git-ignored; override with `FABRICOPS_DATABASE_PATH`). The schema is created automatically on first use. Known limitation: affected host IDs are format-checked but not yet validated against a host registry.
+
+Telemetry tools (`backend/app/tools/`): exactly three read-only tools, with every input validated and bounded (host IDs, 1 to 720 minute windows, log ranges of at most 24 hours, at most 100 logs). Unknown hosts, out-of-scope hosts and unregistered tool names are rejected. Each result reports a status that keeps these cases apart: `ok` (a reading of 0 is still `ok`), `no_data`, `stale` (judged by observation time, not ingestion time), `timeout`, `error`, `rejected` and `malformed`. Failures never carry readings. Evidence records get deterministic IDs per run and are stored with source, host, and separate observed and ingested timestamps. Log text is marked `untrusted_data`. The tools are not exposed over HTTP; the workflow will call them in Phase 07.
 
 Configuration: see [.env.example](.env.example). Copy values into `backend/.env` and `frontend/.env`; real `.env` files are git-ignored. `GET http://localhost:8000/health` returns the service status.
 

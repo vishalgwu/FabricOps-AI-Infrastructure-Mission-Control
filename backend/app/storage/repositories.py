@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 from app.schemas.common import RunStatus
-from app.schemas.domain import Incident, Run
+from app.schemas.domain import EvidenceRecord, Incident, Run
 from app.storage.db import Database
 
 
@@ -139,3 +139,41 @@ class RunRepository:
             " VALUES (?, ?, ?, ?, ?, ?)",
             (run_id, event_type, from_status, to_status, detail, _iso(now)),
         )
+
+
+class EvidenceRepository:
+    """Stores evidence collected by tools. IDs are deterministic, so re-saving is a no-op."""
+
+    def __init__(self, db: Database):
+        self._db = db
+
+    def add_many(self, records: list[EvidenceRecord]) -> None:
+        with self._db.connect() as conn:
+            conn.executemany(
+                "INSERT OR IGNORE INTO evidence (id, run_id, source_type, host_id, tool_name,"
+                " observed_at, ingested_at, payload, synthetic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [
+                    (r.id, r.run_id, r.source_type, r.host_id, r.tool_name, _iso(r.observed_at),
+                     _iso(r.ingested_at), json.dumps(r.payload), int(r.synthetic))
+                    for r in records
+                ],
+            )
+
+    def get(self, evidence_id: str) -> EvidenceRecord | None:
+        with self._db.connect() as conn:
+            row = conn.execute("SELECT * FROM evidence WHERE id = ?", (evidence_id,)).fetchone()
+        return _evidence(row) if row else None
+
+    def list_for_run(self, run_id: str) -> list[EvidenceRecord]:
+        with self._db.connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM evidence WHERE run_id = ? ORDER BY observed_at, id", (run_id,)
+            ).fetchall()
+        return [_evidence(r) for r in rows]
+
+
+def _evidence(row: sqlite3.Row) -> EvidenceRecord:
+    data = {k: row[k] for k in row.keys()}
+    data["payload"] = json.loads(data["payload"])
+    data["synthetic"] = bool(data["synthetic"])
+    return EvidenceRecord(**data)
