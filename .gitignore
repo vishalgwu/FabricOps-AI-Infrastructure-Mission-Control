@@ -1,0 +1,28 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Node / build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Databases and caches
+*.db
+*.sqlite
+*.sqlite3
+.cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

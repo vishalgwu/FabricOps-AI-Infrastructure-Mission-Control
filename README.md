@@ -45,9 +45,10 @@ FabricOps is the **general investigation platform**:
 |---|---|
 | Repository and project specification | Specification written; build guide added under `docs/guide/` |
 | Visual prototype | None exists. An earlier README mentioned one by mistake; the UI will be built from scratch in Phase 09 |
-| Fixtures, tools, retrieval, agent runtime, UI, approvals, evaluation | Not started |
+| Phase 01: runnable backend and frontend skeleton | Done: FastAPI `/health`, React status page, tests |
+| Fixtures, tools, retrieval, investigator, workflow, approvals, evaluation | Not started |
 
-No application code, tests, or deployment exist yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
+Only the skeleton exists: a health endpoint and a status page. There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
 
 ## Roadmap
 
@@ -58,9 +59,35 @@ A 13-phase build plan (Phases 00–12) in four milestones. Each phase has its ow
 - **C (Phases 07–09):** controlled workflow, policy and approvals, UI and history
 - **D (Phases 10–12):** evaluation, security and reliability, release and demo
 
-## Planned stack (not yet installed)
+## Stack
 
 Python 3.11+ with FastAPI and Pydantic, SQLite for persistence, React + TypeScript + Vite for the UI, Pytest for backend tests, lexical retrieval for the first RAG version, and an LLM provider adapter behind one interface.
+
+## Quick start
+
+Prerequisites: Python 3.11+ and Node 20+.
+
+Backend (from `backend/`):
+
+```bash
+python -m venv .venv
+.venv/Scripts/python -m pip install -e ".[dev]"   # on macOS/Linux: .venv/bin/python
+.venv/Scripts/python -m uvicorn app.main:app --port 8000
+.venv/Scripts/python -m pytest
+```
+
+Frontend (from `frontend/`, with the backend running):
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build
+npm run lint
+```
+
+Configuration: see [.env.example](.env.example). Copy values into `backend/.env` and `frontend/.env`; real `.env` files are git-ignored. `GET http://localhost:8000/health` returns the service status.
+
+Known limitation: `npm audit` reports a high-severity ReDoS advisory in `picomatch`, a transitive dev/build-time dependency of Vite. It is not shipped to browsers; revisit when Vite publishes a fix.
 
 ## Documentation
 
