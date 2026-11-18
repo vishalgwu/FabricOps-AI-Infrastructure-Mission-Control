@@ -50,7 +50,7 @@ The guide targets Python 3.11+. Use 3.13 consistently, or pin a version in Phase
 ## 6. Open items
 
 - The planned stack in the README (Python/FastAPI/React) replaced an earlier TypeScript/"eve runtime" note. Confirm this is the intended stack before Phase 01.
-- `feat/fabricops-mvp` is stale. Either fast-forward it to `main` or use it for Phase 01 work; the next implementation branch is not yet agreed.
+- `feat/fabricops-mvp` is stale and unused; implementation happens on `main`. The branch can be deleted or left as is.
 - Decide whether to add a LICENSE.
 
 ## 7. Phase 00 acceptance
@@ -58,4 +58,4 @@ The guide targets Python 3.11+. Use 3.13 consistently, or pin a version in Phase
 - [x] Existing work is preserved (no files deleted or overwritten).
 - [x] Repository state is documented (this file).
 - [x] No application code has been generated.
-- [ ] The next implementation branch is agreed (needs your decision; see section 6).
+- [x] The next implementation branch is agreed: `main` (decided 2026-11-18).
