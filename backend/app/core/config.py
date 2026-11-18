@@ -1,5 +1,6 @@
 """Application settings, loaded from environment variables and an optional .env file."""
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,6 +11,8 @@ class Settings(BaseSettings):
     app_name: str = "FabricOps"
     environment: str = "local"
     log_level: str = "INFO"
+    # SQLite file. Defaults to backend/data/fabricops.db (git-ignored).
+    database_path: str = str(Path(__file__).resolve().parents[2] / "data" / "fabricops.db")
     # Comma-separated list of allowed browser origins for the local frontend.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
