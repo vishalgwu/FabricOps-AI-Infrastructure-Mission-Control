@@ -3,8 +3,15 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 
-from app.schemas.common import RunStatus
-from app.schemas.domain import EvidenceRecord, Incident, InvestigationReport, Run
+from app.schemas.common import ApprovalStatus, RunStatus
+from app.schemas.domain import (
+    ApprovalDecision,
+    EvidenceRecord,
+    Incident,
+    InvestigationReport,
+    Proposal,
+    Run,
+)
 from app.storage.db import Database
 
 
@@ -231,3 +238,104 @@ class ReportRepository:
         with self._db.connect() as conn:
             row = conn.execute("SELECT report FROM investigation_reports WHERE run_id = ?", (run_id,)).fetchone()
         return InvestigationReport.model_validate_json(row["report"]) if row else None
+
+
+def _proposal(row: sqlite3.Row) -> Proposal:
+    data = {k: row[k] for k in ("id", "version", "run_id", "description", "risk_class", "approval_status",
+                                "proposal_hash", "expires_at")}
+    data["parameters"] = json.loads(row["parameters"])
+    data["target_scope"] = json.loads(row["target_scope"])
+    data["evidence_ids"] = json.loads(row["evidence_ids"])
+    data["policy_reasons"] = json.loads(row["policy_reasons"])
+    return Proposal(**data)
+
+
+def _decision(row: sqlite3.Row) -> ApprovalDecision:
+    return ApprovalDecision(**{k: row[k] for k in row.keys()})
+
+
+class ProposalRepository:
+    """Versioned proposals and the approval decisions bound to them."""
+
+    def __init__(self, db: Database):
+        self._db = db
+
+    def add(self, p: Proposal, created_at: datetime) -> None:
+        with self._db.connect() as conn:
+            self._insert(conn, p, created_at)
+
+    @staticmethod
+    def _insert(conn: sqlite3.Connection, p: Proposal, created_at: datetime) -> None:
+        conn.execute(
+            "INSERT INTO proposals (id, version, run_id, description, parameters, target_scope, risk_class,"
+            " approval_status, proposal_hash, expires_at, created_at, evidence_ids, policy_reasons)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (p.id, p.version, p.run_id, p.description, json.dumps(p.parameters), json.dumps(p.target_scope),
+             p.risk_class.value, p.approval_status.value, p.proposal_hash,
+             _iso(p.expires_at) if p.expires_at else None, _iso(created_at),
+             json.dumps(p.evidence_ids), json.dumps(p.policy_reasons)),
+        )
+
+    def add_revision(self, previous: Proposal, new: Proposal, created_at: datetime) -> bool:
+        """Atomically supersede `previous` (it becomes EXPIRED, so its approval can never be reused)
+        and store the new version. Returns False if `previous` was no longer the latest version."""
+        with self._db.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            latest = conn.execute("SELECT MAX(version) FROM proposals WHERE id = ?", (previous.id,)).fetchone()[0]
+            if latest != previous.version:
+                return False
+            conn.execute("UPDATE proposals SET approval_status = ? WHERE id = ? AND version = ?",
+                         (ApprovalStatus.EXPIRED.value, previous.id, previous.version))
+            self._insert(conn, new, created_at)
+            return True
+
+    def get(self, proposal_id: str, version: int | None = None) -> Proposal | None:
+        """The given version, or the latest one."""
+        with self._db.connect() as conn:
+            if version is None:
+                row = conn.execute("SELECT * FROM proposals WHERE id = ? ORDER BY version DESC LIMIT 1",
+                                   (proposal_id,)).fetchone()
+            else:
+                row = conn.execute("SELECT * FROM proposals WHERE id = ? AND version = ?",
+                                   (proposal_id, version)).fetchone()
+        return _proposal(row) if row else None
+
+    def latest_for_run(self, run_id: str) -> list[Proposal]:
+        with self._db.connect() as conn:
+            rows = conn.execute(
+                "SELECT p.* FROM proposals p WHERE p.run_id = ? AND p.version ="
+                " (SELECT MAX(version) FROM proposals WHERE id = p.id) ORDER BY p.created_at, p.id",
+                (run_id,)).fetchall()
+        return [_proposal(r) for r in rows]
+
+    def set_status(self, proposal_id: str, version: int, expected: ApprovalStatus, new: ApprovalStatus) -> bool:
+        with self._db.connect() as conn:
+            cur = conn.execute(
+                "UPDATE proposals SET approval_status = ? WHERE id = ? AND version = ? AND approval_status = ?",
+                (new.value, proposal_id, version, expected.value))
+            return cur.rowcount == 1
+
+    def decision_for(self, proposal_id: str, proposal_hash: str) -> ApprovalDecision | None:
+        with self._db.connect() as conn:
+            row = conn.execute("SELECT * FROM approval_decisions WHERE proposal_id = ? AND proposal_hash = ?",
+                               (proposal_id, proposal_hash)).fetchone()
+        return _decision(row) if row else None
+
+    def record_decision(self, d: ApprovalDecision, version: int, new_status: ApprovalStatus) -> bool:
+        """Atomically store the decision AND move the proposal PENDING -> APPROVED/REJECTED.
+
+        Returns False (and stores nothing) if the proposal is not PENDING at that version any more.
+        """
+        with self._db.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            cur = conn.execute(
+                "UPDATE proposals SET approval_status = ? WHERE id = ? AND version = ? AND proposal_hash = ?"
+                " AND approval_status = ?",
+                (new_status.value, d.proposal_id, version, d.proposal_hash, ApprovalStatus.PENDING.value))
+            if cur.rowcount != 1:
+                return False
+            conn.execute(
+                "INSERT INTO approval_decisions (id, proposal_id, proposal_hash, actor, decision, reason, created_at)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (d.id, d.proposal_id, d.proposal_hash, d.actor, d.decision.value, d.reason, _iso(d.created_at)))
+            return True

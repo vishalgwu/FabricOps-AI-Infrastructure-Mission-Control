@@ -31,6 +31,25 @@ class InvalidTransitionError(AppError):
     code = "invalid_state_transition"
 
 
+class ConflictError(AppError):
+    status_code = 409
+    code = "conflict"
+
+    def __init__(self, code: str, message: str):
+        super().__init__(message)
+        self.code = code
+
+
+class UnauthenticatedError(AppError):
+    status_code = 401
+    code = "unauthenticated"
+
+
+class ForbiddenError(AppError):
+    status_code = 403
+    code = "forbidden"
+
+
 def _envelope(status: int, code: str, message: str, details: list[dict[str, Any]] | None = None):
     return JSONResponse(
         status_code=status,

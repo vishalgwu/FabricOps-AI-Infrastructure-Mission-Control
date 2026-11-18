@@ -164,6 +164,8 @@ class ProposedTest(StrictModel):
     target_scope: list[str] = Field(min_length=1)
     parameters: dict[str, str | int | float | bool] = {}
     evidence_ids: list[str] = []
+    # What the model claimed. Advisory only: the server's policy decides the real risk class.
+    advisory_risk_class: RiskClass | None = None
 
 
 class InvestigationReport(StrictModel):
@@ -198,6 +200,8 @@ class Proposal(StrictModel):
     approval_status: ApprovalStatus
     proposal_hash: str
     expires_at: UtcDatetime | None = None
+    evidence_ids: list[str] = []
+    policy_reasons: list[str] = []
 
     @field_validator("proposal_hash")
     @classmethod

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from app.api.deps import build_proposal_service
 from app.domain.fixture_loader import load_all_fixtures
 from app.llm.mock import MockProvider
 from app.llm.provider import TransientProviderError
@@ -76,7 +77,7 @@ def stage_names(evs, kind="stage_completed"):
 
 
 STAGES = ["load_incident", "validate_scope", "collect_telemetry", "check_freshness", "persist_evidence",
-          "retrieve_docs", "investigate", "persist_report"]
+          "retrieve_docs", "investigate", "apply_policy", "persist_report"]
 
 
 # ---- normal workflow reaches a valid terminal state ----
@@ -180,7 +181,7 @@ def test_unexpected_errors_are_hidden_from_the_user(tmp_path):
     from app.api import deps
 
     wf = InvestigationWorkflow(app.state.db, {fx.incident.scenario_type: fx for fx in load_all_fixtures().values()},
-                               load_corpus(), boom)
+                               load_corpus(), boom, build_proposal_service(app))
     app.dependency_overrides[deps.get_workflow] = lambda: wf
     run = finished(client, start(client, new_incident(client)).json()["id"])
     assert run["status"] == "FAILED" and run["error_code"] == "internal_error"
@@ -390,4 +391,4 @@ def test_schema_migration_from_v1_database(tmp_path):
     assert runs.create_or_get(new, "key-1") == (new, True)
     assert runs.create_or_get(new, "key-1")[1] is False
     with db.connect() as c:
-        assert c.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert c.execute("PRAGMA user_version").fetchone()[0] == 3

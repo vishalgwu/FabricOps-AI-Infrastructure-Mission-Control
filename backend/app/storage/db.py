@@ -9,7 +9,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS incidents (
@@ -69,6 +69,8 @@ CREATE TABLE IF NOT EXISTS proposals (
     proposal_hash   TEXT NOT NULL,
     expires_at      TEXT,
     created_at      TEXT NOT NULL,
+    evidence_ids    TEXT NOT NULL DEFAULT '[]',   -- added in schema v3
+    policy_reasons  TEXT NOT NULL DEFAULT '[]',   -- added in schema v3
     PRIMARY KEY (id, version)
 );
 CREATE INDEX IF NOT EXISTS idx_proposals_run ON proposals (run_id);
@@ -127,6 +129,14 @@ class Database:
         columns = {r[1] for r in conn.execute("PRAGMA table_info(runs)")}
         if "idempotency_key" not in columns:  # v1 -> v2
             conn.execute("ALTER TABLE runs ADD COLUMN idempotency_key TEXT")
+        pcols = {r[1] for r in conn.execute("PRAGMA table_info(proposals)")}
+        if "evidence_ids" not in pcols:  # v2 -> v3
+            conn.execute("ALTER TABLE proposals ADD COLUMN evidence_ids TEXT NOT NULL DEFAULT '[]'")
+        if "policy_reasons" not in pcols:
+            conn.execute("ALTER TABLE proposals ADD COLUMN policy_reasons TEXT NOT NULL DEFAULT '[]'")
+        # A proposal version can be decided at most once: the database enforces it.
+        conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_decisions_once"
+                     " ON approval_decisions (proposal_id, proposal_hash)")
         # One run per (incident, key): the database itself prevents duplicate starts.
         conn.execute(
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_runs_idem ON runs (incident_id, idempotency_key)"

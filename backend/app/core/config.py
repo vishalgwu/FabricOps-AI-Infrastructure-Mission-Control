@@ -24,8 +24,15 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 120.0
     llm_max_attempts: int = 3                   # bounded retries for transient failures only
     llm_enable_fallbacks: bool = True           # server-side refusal fallbacks (Anthropic beta)
+    # --- approvals (DEMO identity only: this is not production authentication) ---
+    demo_reviewers: str = "demo-reviewer"      # comma-separated names allowed to approve/reject
+    approval_ttl_minutes: int = 1440           # how long a pending proposal stays decidable
     # Comma-separated list of allowed browser origins for the local frontend.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+
+    @property
+    def reviewer_set(self) -> frozenset[str]:
+        return frozenset(r.strip() for r in self.demo_reviewers.split(",") if r.strip())
 
     @property
     def cors_origin_list(self) -> list[str]:

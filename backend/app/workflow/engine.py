@@ -5,8 +5,8 @@ known number of times, the model is called at most once (plus bounded transient 
 and nothing is ever executed on a host.
 
 Stages: load_incident -> validate_scope -> collect_telemetry -> check_freshness ->
-persist_evidence -> retrieve_docs -> investigate -> persist_report.
-(Proposal policy and approvals are added by Phase 08.)
+persist_evidence -> retrieve_docs -> investigate -> apply_policy -> persist_report.
+A proposal that policy says needs approval parks the run in WAITING_APPROVAL; nothing is executed.
 """
 import json
 import logging
@@ -22,9 +22,11 @@ from app.llm.package import build_package
 from app.llm.provider import LLMProvider
 from app.retrieval.index import DocumentIndex
 from app.retrieval.tool import DocSearchTool
-from app.schemas.common import RunStatus, ScenarioType
+from app.policy.policy import PolicyViolation
+from app.schemas.common import ApprovalStatus, RunStatus, ScenarioType
 from app.schemas.domain import Run
 from app.schemas.fixtures import ScenarioFixture
+from app.services.proposals import ProposalService
 from app.services.services import RunService
 from app.storage.db import Database
 from app.storage.repositories import (
@@ -73,6 +75,7 @@ class InvestigationWorkflow:
         fixtures: dict[ScenarioType, ScenarioFixture],
         docs: DocumentIndex,
         provider_factory: Callable[[], LLMProvider],
+        proposals: ProposalService,
         limits: WorkflowLimits = WorkflowLimits(),
         monotonic: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
@@ -81,6 +84,7 @@ class InvestigationWorkflow:
         self._fixtures = fixtures
         self._docs = docs
         self._provider_factory = provider_factory
+        self._proposals = proposals
         self.limits = limits
         self._monotonic = monotonic
         self._sleep = sleep
@@ -108,8 +112,8 @@ class InvestigationWorkflow:
 
         deadline = self._monotonic() + self.limits.max_run_seconds
         try:
-            outcome = self._pipeline(run, deadline)
-            self._finish(run_id, outcome.status, outcome.error_code)
+            outcome, final_status = self._pipeline(run, deadline)
+            self._finish(run_id, final_status, outcome.error_code)
         except WorkflowAbort as abort:  # the failing stage already recorded a stage_failed event
             self._finish(run_id, RunStatus.FAILED, abort.code)
         except Exception:  # noqa: BLE001 - last line of defence; details go to the log, not the user
@@ -121,7 +125,7 @@ class InvestigationWorkflow:
 
     # ---- stages ----
 
-    def _pipeline(self, run: Run, deadline: float) -> InvestigationOutcome:
+    def _pipeline(self, run: Run, deadline: float) -> tuple[InvestigationOutcome, RunStatus]:
         lim = self.limits
 
         def check_time() -> None:
@@ -218,7 +222,25 @@ class InvestigationWorkflow:
                   "model_id": m.model_id, "prompt_version": m.prompt_version if m.llm_called else None,
                   "attempts": m.attempts, "latency_ms": m.latency_ms, "usage": m.usage})
 
-        # 9-10. Persist the report and model metadata
+        # 9. Apply deterministic policy to the suggested next step (the model cannot authorise anything)
+        final_status = outcome.status
+        with self._stage(run.id, "apply_policy") as done:
+            proposal = None
+            if outcome.report is not None:
+                try:
+                    proposal = self._proposals.create_for_run(outcome.report, incident.affected_hosts)
+                except PolicyViolation as exc:
+                    raise WorkflowAbort("policy_violation", str(exc)) from exc
+            if proposal is None:
+                done({"proposal": None})
+            else:
+                if proposal.approval_status == ApprovalStatus.PENDING:
+                    final_status = RunStatus.WAITING_APPROVAL  # parked until a human decides
+                done({"proposal_id": proposal.id, "risk_class": proposal.risk_class.value,
+                      "approval_status": proposal.approval_status.value, "proposal_hash": proposal.proposal_hash,
+                      "reasons": proposal.policy_reasons, "executed": False})
+
+        # 10. Persist the report and model metadata
         with self._stage(run.id, "persist_report") as done:
             if outcome.report is not None:
                 self._reports.save(outcome.report)
@@ -226,7 +248,7 @@ class InvestigationWorkflow:
             self._runs.record_model_metadata(run.id, outcome.metadata.model_id if used else None,
                                              outcome.metadata.prompt_version if used else None)
             done({"report_saved": outcome.report is not None})
-        return outcome
+        return outcome, final_status
 
     # ---- helpers ----
 

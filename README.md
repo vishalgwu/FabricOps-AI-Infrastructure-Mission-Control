@@ -52,7 +52,8 @@ FabricOps is the **general investigation platform**:
 | Phase 05: versioned document retrieval | Done: synthetic runbook corpus, chunker, BM25 lexical search, bounded `search_docs`; 141 backend tests pass |
 | Phase 06: LLM investigator | Done and tested with a mock provider only; the real Claude adapter has not been run against the live API; 188 backend tests pass |
 | Phase 07: controlled workflow | Done: fixed 8-stage workflow with limits, background start, idempotent runs, replayable events; 215 backend tests pass (mock provider only) |
-| Policy and approvals, UI, evaluation | Not started |
+| Phase 08: deterministic policy and approvals | Done: backend policy, hashed and versioned proposals, demo-reviewer approve/reject, expiry; 264 backend tests pass |
+| UI, evaluation | Not started |
 
 Only the skeleton, data contract and persistence exist: a health endpoint, a status page, validated schemas, synthetic fixtures, and a stored incident API. There is still no investigation capability (an investigation can be started and runs end to end against the synthetic fixtures; no live model call has been made yet). There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
 
@@ -106,6 +107,8 @@ API (backend on port 8000; interactive docs at `/docs`):
 | `GET /api/runs/{id}` | Read one run |
 | `GET /api/runs/{id}/events?after_seq=` | Ordered stage and state events; pass the last `seq` seen to resume after a refresh |
 | `GET /api/runs/{id}/report` | The validated investigation report (404 until one exists) |
+| `GET /api/runs/{id}/proposal`, `GET /api/proposals/{id}` | The suggested next step with its risk class, hash, approval status and decision. `execution_enabled` is always `false` |
+| `POST /api/proposals/{id}/decision` | Approve or reject (demo reviewer header `X-Demo-Reviewer`); body carries the proposal hash the reviewer saw |
 
 Errors share one shape: `{"error": {"code", "message", "details": [{"field", "message"}]}}`. There are no update or delete routes, so IDs and incidents are immutable. The run state machine is enforced in the service layer.
 
@@ -124,7 +127,11 @@ LLM investigator (`backend/app/llm/`): given an evidence package (this run's too
 
 Workflow (`backend/app/workflow/`): a fixed sequence, not an agent loop: load incident, validate host scope, collect telemetry (typed tools), check freshness, persist evidence, retrieve documents, call the investigator once, persist the report. Explicit limits (`WorkflowLimits`): tool calls (12), hosts (8), metrics time range (60 of at most 120 minutes), evidence records (200), document chunks (5), model output size, model retries (3), and total run time (120 s). Limits that can be known up front are checked before any work starts. Every stage writes `stage_started` / `stage_completed` / `stage_failed` events; a failed stage ends the run as `FAILED` with a typed `error_code` (for example `invalid_host_scope`, `limit_exceeded`, `run_timeout`, `model_output_rejected`) and a safe message. Unexpected errors are logged on the server and shown only as `internal_error`. Stale or missing telemetry ends as `ABSTAINED`. Duplicate starts are prevented in the database (one run per incident and idempotency key, one in-flight run per incident), and a run can only be executed once. Nothing in the workflow executes anything on a host. Incidents are matched to a synthetic scenario fixture by `scenario_type`.
 
-Known limitations: if the server stops mid-run, that run stays `RUNNING` (recovery is Phase 11). Background work uses FastAPI's in-process background tasks, which suits a single local server, not a multi-worker deployment. The proposal policy gate and approvals are Phase 08, so `WAITING_APPROVAL` is not reachable yet.
+Policy and approvals (`backend/app/policy/`, `backend/app/services/proposals.py`): the model may suggest one next step, but plain Python rules decide its risk class from the wording: `read_only_diagnostic`, `controlled_test` or `write_or_deploy` (restart, deploy, delete, command syntax and similar). Unrecognised wording is treated as a controlled test, never as safe. The model's own label can only make the class stricter, never looser. Read-only proposals need no approval and the run completes. Controlled-test and write/deploy proposals park the run in `WAITING_APPROVAL`. Each proposal has a version and a SHA-256 hash covering its text, parameters, scope, risk class and the content of the evidence it cites. A decision must carry that hash, so an approval cannot be reused if anything changed; revising a proposal creates a new version, expires the old one and needs a fresh decision. Proposals expire (24 hours by default; `FABRICOPS_APPROVAL_TTL_MINUTES`); an expired one cancels the run. Decisions are idempotent and stored with actor, time, reason and hash, and survive restarts. Approving or rejecting only records the human decision. There is no execution adapter in the codebase, and a test scans for one.
+
+Demo identity only: reviewers are the names in `FABRICOPS_DEMO_REVIEWERS` (default `demo-reviewer`), sent in the `X-Demo-Reviewer` header. Anyone who can reach the API can send that header, so this is a labelled demo stand-in and not authentication. Real login is out of scope for the MVP.
+
+Known limitations: if the server stops mid-run, that run stays `RUNNING` (recovery is Phase 11). Background work uses FastAPI's in-process background tasks, which suits a single local server, not a multi-worker deployment. Wording-based classification is a conservative keyword rule set tuned on a small set of examples; it errs toward requiring approval and can misjudge unusual phrasing.
 
 Configuration: see [.env.example](.env.example). Copy values into `backend/.env` and `frontend/.env`; real `.env` files are git-ignored. `GET http://localhost:8000/health` returns the service status.
 

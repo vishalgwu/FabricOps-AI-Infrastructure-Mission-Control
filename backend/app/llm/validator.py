@@ -109,7 +109,7 @@ def validate_investigation(raw: ModelInvestigation, pkg: EvidencePackage) -> Inv
         citations=citations,
         missing_evidence=raw.missing_evidence,
         proposed_next_test=None if nt is None else ProposedTest(
-            description=nt.description, target_scope=nt.target_scope,
+            description=nt.description, target_scope=nt.target_scope, advisory_risk_class=nt.risk_class,
             evidence_ids=sorted({i for o in raw.observations for i in o.evidence_ids})),
         limitations=limitations,
     )

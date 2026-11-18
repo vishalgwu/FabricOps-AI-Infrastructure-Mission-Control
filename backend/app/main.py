@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, incidents, runs
+from app.api import health, incidents, proposals, runs
 from app.core.config import get_settings
 from app.core.errors import install_error_handlers
 from app.core.logging import configure_logging
@@ -9,7 +11,8 @@ from app.storage.db import Database
 from app.workflow.engine import WorkflowLimits
 
 
-def create_app(database_path: str | None = None, provider=None, workflow_limits=None) -> FastAPI:
+def create_app(database_path: str | None = None, provider=None, workflow_limits=None, clock=None,
+               reviewers: frozenset[str] | None = None) -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level)
     app = FastAPI(title=settings.app_name, version="0.1.0")
@@ -22,11 +25,14 @@ def create_app(database_path: str | None = None, provider=None, workflow_limits=
     app.state.db = Database(database_path or settings.database_path)
     app.state.provider = provider            # tests inject a mock; None means use backend settings
     app.state.workflow_limits = workflow_limits or WorkflowLimits()
+    app.state.clock = clock or (lambda: datetime.now(timezone.utc))
+    app.state.reviewers = reviewers          # None means use FABRICOPS_DEMO_REVIEWERS
     app.state.workflow = None                # built lazily on first use
     install_error_handlers(app)
     app.include_router(health.router)
     app.include_router(incidents.router)
     app.include_router(runs.router)
+    app.include_router(proposals.router)
     return app
 
 
