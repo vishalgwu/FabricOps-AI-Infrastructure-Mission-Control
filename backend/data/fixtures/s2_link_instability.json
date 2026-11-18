@@ -1,0 +1,1979 @@
+{
+  "synthetic": true,
+  "data_notice": "SYNTHETIC DATA: fabricated for the FabricOps demo. Not from any real system, customer or vendor.",
+  "scenario_id": "s2_link_instability",
+  "reference_time": "2026-03-10T14:00:00Z",
+  "incident": {
+    "id": "INC-1002",
+    "title": "Network errors on net-h01 only",
+    "description": "net-h01 reports rising link errors and retrains. Peers net-h02, net-h03 and net-h04 are healthy.",
+    "scenario_type": "link_instability",
+    "severity": "medium",
+    "affected_hosts": [
+      "net-h01"
+    ],
+    "created_at": "2026-03-10T14:00:00Z",
+    "synthetic": true
+  },
+  "hosts": [
+    {
+      "id": "net-h01",
+      "role": "network_node",
+      "synthetic": true
+    },
+    {
+      "id": "net-h02",
+      "role": "network_node",
+      "synthetic": true
+    },
+    {
+      "id": "net-h03",
+      "role": "network_node",
+      "synthetic": true
+    },
+    {
+      "id": "net-h04",
+      "role": "network_node",
+      "synthetic": true
+    }
+  ],
+  "metrics": [
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.0,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:00:00Z",
+      "ingested_at": "2026-03-10T13:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 34,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.2,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.68,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:05:00Z",
+      "ingested_at": "2026-03-10T13:05:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 68,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 2,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.4,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.97,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:10:00Z",
+      "ingested_at": "2026-03-10T13:10:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 102,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 4,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.6,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 1.25,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:15:00Z",
+      "ingested_at": "2026-03-10T13:15:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 137,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 5,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.8,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 1.53,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:20:00Z",
+      "ingested_at": "2026-03-10T13:20:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 171,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 6,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 1.0,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 1.82,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:25:00Z",
+      "ingested_at": "2026-03-10T13:25:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 205,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 7,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 1.2,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 2.1,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:30:00Z",
+      "ingested_at": "2026-03-10T13:30:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 239,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 8,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 1.4,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 2.38,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:35:00Z",
+      "ingested_at": "2026-03-10T13:35:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 273,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 9,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 1.6,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 2.67,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:40:00Z",
+      "ingested_at": "2026-03-10T13:40:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 308,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 10,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 1.8,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 2.95,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:45:00Z",
+      "ingested_at": "2026-03-10T13:45:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 342,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 12,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 2.0,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 3.23,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:50:00Z",
+      "ingested_at": "2026-03-10T13:50:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 376,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 13,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 2.2,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 3.52,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 1,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.45,
+      "unit": "ms",
+      "observed_at": "2026-03-10T13:55:00Z",
+      "ingested_at": "2026-03-10T13:55:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 410,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 14,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 2.4,
+      "unit": "percent",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 3.8,
+      "unit": "ms",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 2,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 2,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_error_count",
+      "value": 2,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "link_retrain_count",
+      "value": 0,
+      "unit": "count",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "packet_loss",
+      "value": 0.02,
+      "unit": "percent",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-counters-synthetic",
+      "metric": "network_latency",
+      "value": 0.4,
+      "unit": "ms",
+      "observed_at": "2026-03-10T14:00:00Z",
+      "ingested_at": "2026-03-10T14:00:20Z"
+    }
+  ],
+  "logs": [
+    {
+      "host_id": "net-h01",
+      "source": "nic-log-synthetic",
+      "level": "warning",
+      "message": "link retrain event on port 1",
+      "observed_at": "2026-03-10T13:30:00Z"
+    },
+    {
+      "host_id": "net-h01",
+      "source": "nic-log-synthetic",
+      "level": "warning",
+      "message": "link retrain event on port 1",
+      "observed_at": "2026-03-10T13:48:00Z"
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-log-synthetic",
+      "level": "info",
+      "message": "link stable",
+      "observed_at": "2026-03-10T13:45:00Z"
+    }
+  ],
+  "configs": [
+    {
+      "host_id": "net-h01",
+      "source": "nic-config-synthetic",
+      "observed_at": "2026-03-10T02:00:00Z",
+      "settings": {
+        "link_speed_gbps": 400,
+        "fec_mode": "rs544",
+        "mtu": 9000
+      }
+    },
+    {
+      "host_id": "net-h02",
+      "source": "nic-config-synthetic",
+      "observed_at": "2026-03-10T02:00:00Z",
+      "settings": {
+        "link_speed_gbps": 400,
+        "fec_mode": "rs544",
+        "mtu": 9000
+      }
+    },
+    {
+      "host_id": "net-h03",
+      "source": "nic-config-synthetic",
+      "observed_at": "2026-03-10T02:00:00Z",
+      "settings": {
+        "link_speed_gbps": 400,
+        "fec_mode": "rs544",
+        "mtu": 9000
+      }
+    },
+    {
+      "host_id": "net-h04",
+      "source": "nic-config-synthetic",
+      "observed_at": "2026-03-10T02:00:00Z",
+      "settings": {
+        "link_speed_gbps": 400,
+        "fec_mode": "rs544",
+        "mtu": 9000
+      }
+    }
+  ]
+}

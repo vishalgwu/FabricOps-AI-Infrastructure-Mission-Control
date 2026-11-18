@@ -1,0 +1,276 @@
+{
+  "synthetic": true,
+  "data_notice": "SYNTHETIC DATA: fabricated for the FabricOps demo. Not from any real system, customer or vendor.",
+  "scenario_id": "s3_stale_telemetry",
+  "reference_time": "2026-03-10T14:00:00Z",
+  "incident": {
+    "id": "INC-1003",
+    "title": "Latency report on gpu-h21 with no recent telemetry",
+    "description": "Users report slow responses on gpu-h21. The monitoring dashboard shows no recent data for this host or its peer gpu-h22.",
+    "scenario_type": "stale_telemetry",
+    "severity": "unknown",
+    "affected_hosts": [
+      "gpu-h21"
+    ],
+    "created_at": "2026-03-10T14:00:00Z",
+    "synthetic": true
+  },
+  "hosts": [
+    {
+      "id": "gpu-h21",
+      "role": "gpu_inference",
+      "synthetic": true
+    },
+    {
+      "id": "gpu-h22",
+      "role": "gpu_inference",
+      "synthetic": true
+    }
+  ],
+  "metrics": [
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 190.0,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:15:00Z",
+      "ingested_at": "2026-03-10T08:15:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:15:00Z",
+      "ingested_at": "2026-03-10T08:15:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 208.33,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:20:00Z",
+      "ingested_at": "2026-03-10T08:20:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:20:00Z",
+      "ingested_at": "2026-03-10T08:20:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 226.67,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:25:00Z",
+      "ingested_at": "2026-03-10T08:25:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:25:00Z",
+      "ingested_at": "2026-03-10T08:25:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 245.0,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:30:00Z",
+      "ingested_at": "2026-03-10T08:30:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:30:00Z",
+      "ingested_at": "2026-03-10T08:30:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 263.33,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:35:00Z",
+      "ingested_at": "2026-03-10T08:35:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:35:00Z",
+      "ingested_at": "2026-03-10T08:35:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 281.67,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:40:00Z",
+      "ingested_at": "2026-03-10T08:40:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:40:00Z",
+      "ingested_at": "2026-03-10T08:40:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 300.0,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:45:00Z",
+      "ingested_at": "2026-03-10T08:45:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:45:00Z",
+      "ingested_at": "2026-03-10T08:45:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 318.33,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:50:00Z",
+      "ingested_at": "2026-03-10T08:50:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:50:00Z",
+      "ingested_at": "2026-03-10T08:50:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 336.67,
+      "unit": "ms",
+      "observed_at": "2026-03-10T08:55:00Z",
+      "ingested_at": "2026-03-10T08:55:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T08:55:00Z",
+      "ingested_at": "2026-03-10T08:55:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 355.0,
+      "unit": "ms",
+      "observed_at": "2026-03-10T09:00:00Z",
+      "ingested_at": "2026-03-10T09:00:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T09:00:00Z",
+      "ingested_at": "2026-03-10T09:00:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 373.33,
+      "unit": "ms",
+      "observed_at": "2026-03-10T09:05:00Z",
+      "ingested_at": "2026-03-10T09:05:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T09:05:00Z",
+      "ingested_at": "2026-03-10T09:05:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 391.67,
+      "unit": "ms",
+      "observed_at": "2026-03-10T09:10:00Z",
+      "ingested_at": "2026-03-10T09:10:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T09:10:00Z",
+      "ingested_at": "2026-03-10T09:10:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-metrics-synthetic",
+      "metric": "request_latency_p95",
+      "value": 410.0,
+      "unit": "ms",
+      "observed_at": "2026-03-10T09:15:00Z",
+      "ingested_at": "2026-03-10T09:15:20Z"
+    },
+    {
+      "host_id": "gpu-h21",
+      "source": "dcgm-synthetic",
+      "metric": "kv_cache_used_pct",
+      "value": null,
+      "unit": "percent",
+      "observed_at": "2026-03-10T09:15:00Z",
+      "ingested_at": "2026-03-10T09:15:20Z"
+    }
+  ],
+  "logs": [
+    {
+      "host_id": "gpu-h21",
+      "source": "serving-log-synthetic",
+      "level": "info",
+      "message": "metrics exporter stopped",
+      "observed_at": "2026-03-10T09:16:00Z"
+    }
+  ],
+  "configs": []
+}

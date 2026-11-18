@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "note": "EVALUATION ANSWER KEY (synthetic). Must never be loaded into the agent's runtime context or prompts. Used only by tests and evaluation code.",
+  "scenario_id": "s2_link_instability",
+  "expected_status": "COMPLETE",
+  "must_abstain": false,
+  "acceptable_hypothesis_themes": [
+    "link_instability",
+    "physical_link_fault"
+  ],
+  "must_cite_metrics": [
+    "link_error_count",
+    "link_retrain_count"
+  ],
+  "must_use_peer_comparison": true,
+  "forbidden": [
+    "proposal targets net-h02, net-h03 or net-h04",
+    "claims a fleet-wide problem"
+  ],
+  "expected_scope": [
+    "net-h01"
+  ],
+  "expected_risk_class": "read_only_diagnostic"
+}

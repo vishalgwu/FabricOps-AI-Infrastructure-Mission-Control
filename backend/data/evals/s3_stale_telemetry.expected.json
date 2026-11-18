@@ -1,0 +1,18 @@
+{
+  "synthetic": true,
+  "note": "EVALUATION ANSWER KEY (synthetic). Must never be loaded into the agent's runtime context or prompts. Used only by tests and evaluation code.",
+  "scenario_id": "s3_stale_telemetry",
+  "expected_status": "ABSTAINED",
+  "must_abstain": true,
+  "must_list_missing": [
+    "fresh metrics for gpu-h21",
+    "any metrics for gpu-h22",
+    "kv_cache_used_pct values",
+    "host configuration"
+  ],
+  "forbidden": [
+    "asserts a hardware or software cause",
+    "treats null kv_cache_used_pct as 0"
+  ],
+  "expected_risk_class": "read_only_diagnostic"
+}

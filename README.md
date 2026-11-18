@@ -46,9 +46,10 @@ FabricOps is the **general investigation platform**:
 | Repository and project specification | Specification written; build guide added under `docs/guide/` |
 | Visual prototype | None exists. An earlier README mentioned one by mistake; the UI will be built from scratch in Phase 09 |
 | Phase 01: runnable backend and frontend skeleton | Done: FastAPI `/health`, React status page, tests |
-| Fixtures, tools, retrieval, investigator, workflow, approvals, evaluation | Not started |
+| Phase 02: domain schemas and synthetic fixtures | Done: Pydantic models, 3 scenario fixtures, separate answer keys, validation tests |
+| Tools, retrieval, investigator, workflow, approvals, evaluation | Not started |
 
-Only the skeleton exists: a health endpoint and a status page. There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
+Only the skeleton and the data contract exist: a health endpoint, a status page, validated schemas and synthetic fixtures. There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
 
 ## Roadmap
 
@@ -84,6 +85,8 @@ npm run dev      # http://localhost:5173
 npm run build
 npm run lint
 ```
+
+Data: scenario fixtures live in `backend/data/fixtures/` and are validated by `app/schemas`. The evaluation answer keys live separately in `backend/data/evals/` and are never read by runtime code (a test enforces this).
 
 Configuration: see [.env.example](.env.example). Copy values into `backend/.env` and `frontend/.env`; real `.env` files are git-ignored. `GET http://localhost:8000/health` returns the service status.
 
