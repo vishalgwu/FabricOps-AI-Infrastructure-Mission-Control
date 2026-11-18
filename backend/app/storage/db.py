@@ -9,7 +9,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS incidents (
@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS runs (
     finished_at    TEXT,
     model_id       TEXT,
     prompt_version TEXT,
-    error_code     TEXT
+    error_code     TEXT,
+    idempotency_key TEXT               -- added in schema v2
 );
 CREATE INDEX IF NOT EXISTS idx_runs_incident ON runs (incident_id, started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_runs_status ON runs (status);
@@ -113,11 +114,24 @@ class Database:
             conn = self._open()
             try:
                 conn.executescript(_SCHEMA)
+                self._migrate(conn)
                 conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
                 conn.commit()
             finally:
                 conn.close()
             self._ready = True
+
+    @staticmethod
+    def _migrate(conn: sqlite3.Connection) -> None:
+        """Bring a database created by an older version up to the current schema."""
+        columns = {r[1] for r in conn.execute("PRAGMA table_info(runs)")}
+        if "idempotency_key" not in columns:  # v1 -> v2
+            conn.execute("ALTER TABLE runs ADD COLUMN idempotency_key TEXT")
+        # One run per (incident, key): the database itself prevents duplicate starts.
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_runs_idem ON runs (incident_id, idempotency_key)"
+            " WHERE idempotency_key IS NOT NULL"
+        )
 
     def _open(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.path)

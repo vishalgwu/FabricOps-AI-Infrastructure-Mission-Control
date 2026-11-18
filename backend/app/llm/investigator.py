@@ -54,7 +54,9 @@ class Investigator:
         max_tokens: int = 8000,
         max_attempts: int = 3,
         sleep: Callable[[float], None] = time.sleep,
+        max_output_chars: int = 60_000,
     ):
+        self._max_output_chars = max_output_chars
         self._provider = provider
         self._max_tokens = max_tokens
         self._max_attempts = max(1, max_attempts)
@@ -94,6 +96,10 @@ class Investigator:
         assert response is not None
         meta.model_id, meta.latency_ms = response.model_id, response.latency_ms
         meta.usage, meta.request_id = response.usage, response.request_id
+
+        if len(response.text) > self._max_output_chars:
+            return self._failed(meta, "output_too_large",
+                                [f"model output is {len(response.text)} characters; limit {self._max_output_chars}"])
 
         # 3. Parse against the strict schema. Malformed output is a failure, not retried.
         try:

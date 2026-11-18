@@ -1,12 +1,13 @@
 import re
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Query, Response, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.api.deps import get_incident_service, get_run_service
+from app.api.deps import get_incident_service, get_run_service, get_workflow
 from app.schemas.common import ScenarioType, Severity
 from app.schemas.domain import Incident, Run
 from app.services.services import IncidentService, RunService
+from app.workflow.engine import InvestigationWorkflow
 
 router = APIRouter(prefix="/api")
 
@@ -63,3 +64,27 @@ def get_incident(incident_id: str, svc: IncidentService = Depends(get_incident_s
 @router.get("/incidents/{incident_id}/runs", response_model=list[Run])
 def list_incident_runs(incident_id: str, svc: RunService = Depends(get_run_service)):
     return svc.list_for_incident(incident_id)
+
+
+@router.post("/incidents/{incident_id}/runs", response_model=Run, status_code=status.HTTP_202_ACCEPTED)
+def start_investigation(
+    incident_id: str,
+    background: BackgroundTasks,
+    response: Response,
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key", min_length=1, max_length=64,
+                                         pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$"),
+    svc: RunService = Depends(get_run_service),
+    workflow: InvestigationWorkflow = Depends(get_workflow),
+):
+    """Start an investigation and return immediately (202). The work runs in the background;
+    poll `GET /api/runs/{id}` and `GET /api/runs/{id}/events`.
+
+    Repeating the request does not start a second investigation: the same Idempotency-Key, or
+    an investigation already in flight for this incident, returns the existing run with 200.
+    """
+    run, created = svc.start(incident_id, idempotency_key)
+    if created:
+        background.add_task(workflow.execute, run.id)
+    else:
+        response.status_code = status.HTTP_200_OK
+    return run

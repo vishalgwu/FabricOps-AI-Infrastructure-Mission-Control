@@ -51,9 +51,10 @@ FabricOps is the **general investigation platform**:
 | Phase 04: read-only telemetry tools | Done: `read_metrics`, `read_logs`, `read_config` over the fixture adapter; 102 backend tests pass |
 | Phase 05: versioned document retrieval | Done: synthetic runbook corpus, chunker, BM25 lexical search, bounded `search_docs`; 141 backend tests pass |
 | Phase 06: LLM investigator | Done and tested with a mock provider only; the real Claude adapter has not been run against the live API; 188 backend tests pass |
-| Workflow, approvals, evaluation | Not started |
+| Phase 07: controlled workflow | Done: fixed 8-stage workflow with limits, background start, idempotent runs, replayable events; 215 backend tests pass (mock provider only) |
+| Policy and approvals, UI, evaluation | Not started |
 
-Only the skeleton, data contract and persistence exist: a health endpoint, a status page, validated schemas, synthetic fixtures, and a stored incident API. There is still no investigation capability (the tools and the investigator exist as separate pieces, but nothing wires them into a run yet; no live model call has been made). There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
+Only the skeleton, data contract and persistence exist: a health endpoint, a status page, validated schemas, synthetic fixtures, and a stored incident API. There is still no investigation capability (an investigation can be started and runs end to end against the synthetic fixtures; no live model call has been made yet). There is no investigation capability yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
 
 ## Roadmap
 
@@ -101,9 +102,12 @@ API (backend on port 8000; interactive docs at `/docs`):
 | `GET /api/incidents?limit=&offset=` | List incidents, newest first |
 | `GET /api/incidents/{id}` | Read one incident |
 | `GET /api/incidents/{id}/runs` | List runs for an incident |
+| `POST /api/incidents/{id}/runs` | Start an investigation (202, runs in the background). Optional `Idempotency-Key` header. A repeat or an in-flight run returns the existing run (200) |
 | `GET /api/runs/{id}` | Read one run |
+| `GET /api/runs/{id}/events?after_seq=` | Ordered stage and state events; pass the last `seq` seen to resume after a refresh |
+| `GET /api/runs/{id}/report` | The validated investigation report (404 until one exists) |
 
-Errors share one shape: `{"error": {"code", "message", "details": [{"field", "message"}]}}`. There are no update or delete routes, so IDs and incidents are immutable. Runs cannot be started through the API yet (Phase 07); the run state machine is enforced in the service layer.
+Errors share one shape: `{"error": {"code", "message", "details": [{"field", "message"}]}}`. There are no update or delete routes, so IDs and incidents are immutable. The run state machine is enforced in the service layer.
 
 Persistence: SQLite at `backend/data/fabricops.db` (git-ignored; override with `FABRICOPS_DATABASE_PATH`). The schema is created automatically on first use. Known limitation: affected host IDs are format-checked but not yet validated against a host registry.
 
@@ -117,6 +121,10 @@ LLM investigator (`backend/app/llm/`): given an evidence package (this run's too
 - The model's answer is parsed against a strict schema, then every evidence ID and document chunk ID is checked against this run, proposed hosts must be affected hosts (not peers), `write_or_deploy` and shell-like proposals are rejected, and hypotheses worded as established fact are rejected. Invalid answers fail the run; only transient provider errors (rate limit, timeout, 5xx) are retried, at most 3 attempts.
 - Model ID, prompt version (`investigator-v1`), latency, token usage and attempts are recorded.
 - Server-side refusal fallbacks are on by default (`FABRICOPS_LLM_ENABLE_FALLBACKS`). Known limitation: this and the real adapter's request shape are written from the SDK documentation and unit-tested against a fake client only.
+
+Workflow (`backend/app/workflow/`): a fixed sequence, not an agent loop: load incident, validate host scope, collect telemetry (typed tools), check freshness, persist evidence, retrieve documents, call the investigator once, persist the report. Explicit limits (`WorkflowLimits`): tool calls (12), hosts (8), metrics time range (60 of at most 120 minutes), evidence records (200), document chunks (5), model output size, model retries (3), and total run time (120 s). Limits that can be known up front are checked before any work starts. Every stage writes `stage_started` / `stage_completed` / `stage_failed` events; a failed stage ends the run as `FAILED` with a typed `error_code` (for example `invalid_host_scope`, `limit_exceeded`, `run_timeout`, `model_output_rejected`) and a safe message. Unexpected errors are logged on the server and shown only as `internal_error`. Stale or missing telemetry ends as `ABSTAINED`. Duplicate starts are prevented in the database (one run per incident and idempotency key, one in-flight run per incident), and a run can only be executed once. Nothing in the workflow executes anything on a host. Incidents are matched to a synthetic scenario fixture by `scenario_type`.
+
+Known limitations: if the server stops mid-run, that run stays `RUNNING` (recovery is Phase 11). Background work uses FastAPI's in-process background tasks, which suits a single local server, not a multi-worker deployment. The proposal policy gate and approvals are Phase 08, so `WAITING_APPROVAL` is not reachable yet.
 
 Configuration: see [.env.example](.env.example). Copy values into `backend/.env` and `frontend/.env`; real `.env` files are git-ignored. `GET http://localhost:8000/health` returns the service status.
 

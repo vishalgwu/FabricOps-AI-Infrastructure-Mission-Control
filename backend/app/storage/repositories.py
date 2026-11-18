@@ -25,8 +25,13 @@ def _incident(row: sqlite3.Row) -> Incident:
     )
 
 
+_RUN_FIELDS = ("id", "incident_id", "status", "started_at", "finished_at", "model_id",
+               "prompt_version", "error_code")
+ACTIVE_STATUSES = (RunStatus.CREATED.value, RunStatus.RUNNING.value, RunStatus.WAITING_APPROVAL.value)
+
+
 def _run(row: sqlite3.Row) -> Run:
-    return Run(**{k: row[k] for k in row.keys()})
+    return Run(**{k: row[k] for k in _RUN_FIELDS})
 
 
 class IncidentRepository:
@@ -71,21 +76,40 @@ class RunRepository:
 
     def add(self, run: Run) -> None:
         with self._db.connect() as conn:
-            conn.execute(
-                "INSERT INTO runs (id, incident_id, status, started_at, finished_at, model_id,"
-                " prompt_version, error_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    run.id,
-                    run.incident_id,
-                    run.status.value,
-                    _iso(run.started_at),
-                    _iso(run.finished_at) if run.finished_at else None,
-                    run.model_id,
-                    run.prompt_version,
-                    run.error_code,
-                ),
-            )
-            self._event(conn, run.id, "run_created", None, run.status.value, None, run.started_at)
+            self._insert(conn, run, None)
+
+    def _insert(self, conn: sqlite3.Connection, run: Run, key: str | None) -> None:
+        conn.execute(
+            "INSERT INTO runs (id, incident_id, status, started_at, finished_at, model_id,"
+            " prompt_version, error_code, idempotency_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (run.id, run.incident_id, run.status.value, _iso(run.started_at),
+             _iso(run.finished_at) if run.finished_at else None, run.model_id, run.prompt_version,
+             run.error_code, key),
+        )
+        self._event(conn, run.id, "run_created", None, run.status.value, None, run.started_at)
+
+    def create_or_get(self, run: Run, key: str | None) -> tuple[Run, bool]:
+        """Atomically start a run, or return the existing one. Returns (run, created).
+
+        Order: same idempotency key -> that run; else an in-flight run for the incident -> that
+        run; else insert. BEGIN IMMEDIATE takes the write lock first, so two concurrent starts
+        cannot both insert.
+        """
+        with self._db.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            if key is not None:
+                row = conn.execute("SELECT * FROM runs WHERE incident_id = ? AND idempotency_key = ?",
+                                   (run.incident_id, key)).fetchone()
+                if row:
+                    return _run(row), False
+            marks = ",".join("?" for _ in ACTIVE_STATUSES)
+            row = conn.execute(
+                f"SELECT * FROM runs WHERE incident_id = ? AND status IN ({marks})"
+                " ORDER BY started_at DESC LIMIT 1", (run.incident_id, *ACTIVE_STATUSES)).fetchone()
+            if row:
+                return _run(row), False
+            self._insert(conn, run, key)
+            return run, True
 
     def get(self, run_id: str) -> Run | None:
         with self._db.connect() as conn:
@@ -129,12 +153,17 @@ class RunRepository:
             conn.execute("UPDATE runs SET model_id = ?, prompt_version = ? WHERE id = ?",
                          (model_id, prompt_version, run_id))
 
-    def events(self, run_id: str) -> list[dict]:
+    def add_event(self, run_id: str, event_type: str, detail: str | None = None) -> None:
+        with self._db.connect() as conn:
+            self._event(conn, run_id, event_type, None, None, detail, datetime.now(timezone.utc))
+
+    def events(self, run_id: str, after_seq: int = 0) -> list[dict]:
+        """Ordered events with seq > after_seq, so a reconnecting client can resume where it left off."""
         with self._db.connect() as conn:
             rows = conn.execute(
                 "SELECT seq, event_type, from_status, to_status, detail, created_at"
-                " FROM run_events WHERE run_id = ? ORDER BY seq",
-                (run_id,),
+                " FROM run_events WHERE run_id = ? AND seq > ? ORDER BY seq",
+                (run_id, after_seq),
             ).fetchall()
         return [dict(r) for r in rows]
 

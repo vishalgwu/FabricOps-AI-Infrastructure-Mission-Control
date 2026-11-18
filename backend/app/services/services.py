@@ -65,6 +65,17 @@ class RunService:
         self._runs.add(run)
         return run
 
+    def start(self, incident_id: str, idempotency_key: str | None = None) -> tuple[Run, bool]:
+        """Start an investigation run, or return the existing one. Returns (run, created).
+
+        A repeated request (same key, or an investigation already in flight) never creates a
+        second run, so a browser refresh or double click cannot start the work twice.
+        """
+        if self._incidents.get(incident_id) is None:
+            raise NotFoundError(f"incident '{incident_id}' not found")
+        run = Run(id=_new_id("run"), incident_id=incident_id, status=RunStatus.CREATED, started_at=_now())
+        return self._runs.create_or_get(run, idempotency_key)
+
     def get(self, run_id: str) -> Run:
         run = self._runs.get(run_id)
         if run is None:
@@ -76,9 +87,9 @@ class RunService:
             raise NotFoundError(f"incident '{incident_id}' not found")
         return self._runs.list_for_incident(incident_id)
 
-    def events(self, run_id: str) -> list[dict]:
+    def events(self, run_id: str, after_seq: int = 0) -> list[dict]:
         self.get(run_id)
-        return self._runs.events(run_id)
+        return self._runs.events(run_id, after_seq)
 
     def transition(self, run_id: str, target: RunStatus, error_code: str | None = None) -> Run:
         run = self.get(run_id)
