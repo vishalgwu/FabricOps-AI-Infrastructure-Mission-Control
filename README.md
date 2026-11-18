@@ -43,21 +43,30 @@ FabricOps is the **general investigation platform**:
 
 | Area | Status |
 |---|---|
-| Repository and project specification | In progress (Step 1 of 14) |
-| Visual prototype | None exists. An earlier README mentioned one by mistake; the UI will be built from scratch at Step 10 |
+| Repository and project specification | Specification written; build guide added under `docs/guide/` |
+| Visual prototype | None exists. An earlier README mentioned one by mistake; the UI will be built from scratch in Phase 09 |
 | Fixtures, tools, retrieval, agent runtime, UI, approvals, evaluation | Not started |
 
-No application code, tests, or deployment exist yet. Nothing here should be read as a working system until the matching step in the roadmap is accepted.
+No application code, tests, or deployment exist yet. Nothing here should be read as a working system until the matching phase in the build guide is accepted.
 
 ## Roadmap
 
-A 14-step build plan in four milestones:
+A 13-phase build plan (Phases 00–12) in four milestones. Each phase has its own acceptance checklist in [docs/guide/phases](docs/guide/phases); progress is tracked in [docs/guide/CHECKLIST.md](docs/guide/CHECKLIST.md).
 
-- **A (Steps 1–4):** specification, runnable scaffold, synthetic fixtures, durable intake
-- **B (Steps 5–8):** tools, retrieval, model reasoning, bounded resumable workflow
-- **C (Steps 9–11):** approvals, mission-control UI, history and observable runs
-- **D (Steps 12–14):** evaluation, hardening, reproducible release
+- **A (Phases 00–02):** repository audit, runnable scaffold, schemas and synthetic fixtures
+- **B (Phases 03–06):** persistence and incident API, telemetry tools, retrieval, LLM investigator
+- **C (Phases 07–09):** controlled workflow, policy and approvals, UI and history
+- **D (Phases 10–12):** evaluation, security and reliability, release and demo
 
 ## Planned stack (not yet installed)
 
-TypeScript with the eve agent runtime, a web client for the UI, schema-validated tools, local persistent storage behind an adapter, AI Gateway model selection, and a versioned local document corpus. The stack is confirmed at Step 2.
+Python 3.11+ with FastAPI and Pydantic, SQLite for persistence, React + TypeScript + Vite for the UI, Pytest for backend tests, lexical retrieval for the first RAG version, and an LLM provider adapter behind one interface.
+
+## Documentation
+
+- [docs/mvp.md](docs/mvp.md): MVP specification, scenarios and investigation output contract
+- [docs/guide/01_AI_CODING_RULES.md](docs/guide/01_AI_CODING_RULES.md): rules for AI coding assistants working on this repo
+- [docs/guide/02_ARCHITECTURE.md](docs/guide/02_ARCHITECTURE.md): target architecture, entities, run state machine
+- [docs/guide/03_MILESTONES_AND_ACCEPTANCE.md](docs/guide/03_MILESTONES_AND_ACCEPTANCE.md): phase gates and final acceptance checklist
+- [docs/guide/phases](docs/guide/phases): per-phase build instructions
+- [docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf](docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf): original roadmap (earlier 14-step plan, superseded by the phases above)

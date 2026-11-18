@@ -1,6 +1,6 @@
 # FabricOps MVP Specification
 
-Status: **Draft for Step 1 acceptance.** Nothing described here is implemented yet.
+Status: **Draft for Phase 00–01 acceptance.** Nothing described here is implemented yet.
 
 All data in the MVP is **synthetic**. The MVP is **proposal-only**: no unattended production remediation, no shell execution, no host restarts, no deployments.
 
@@ -71,7 +71,7 @@ Every completed run produces one record with these fields. The server validates 
 | `proposed_next_test` | object or null | `description`, `target_scope` (host IDs), `parameters`, `evidence_ids[]`. Null when abstaining or recommending only visibility restoration. |
 | `risk_class` | enum: `read_only_diagnostic` \| `controlled_test` \| `write_or_deploy` | Set by deterministic server policy; the model's own risk estimate is advisory only. |
 | `approval_status` | enum: `not_required` \| `pending` \| `approved` \| `rejected` \| `expired` | `write_or_deploy` is never `not_required`. |
-| `run_status` | enum: `CREATED` \| `RUNNING` \| `WAITING_APPROVAL` \| `COMPLETE` \| `ABSTAINED` \| `FAILED` \| `CANCELLED` | Proposed state machine; transitions defined in Step 4. |
+| `run_status` | enum: `CREATED` \| `RUNNING` \| `WAITING_APPROVAL` \| `COMPLETE` \| `ABSTAINED` \| `FAILED` \| `CANCELLED` | Proposed state machine; transitions defined in Phase 03 (docs/guide/phases/PHASE_03_PERSISTENCE_AND_INCIDENT_API.md). |
 | `limitations[]` | list | Known gaps, synthetic-data labeling, partial results. |
 
 Invariants:
@@ -93,14 +93,14 @@ Invariants:
 
 | Claim | Status |
 |---|---|
-| Visual prototype with scripted responses exists | **No.** No prototype exists; an earlier README mentioned one by mistake. The UI is built from scratch at Step 10. |
+| Visual prototype with scripted responses exists | **No.** No prototype exists; an earlier README mentioned one by mistake. The UI is built from scratch in Phase 09. |
 | Any tool, retrieval, agent, UI, approval or evaluation capability | **Not implemented.** |
 
-## 6. Step 1 gate check
+## 6. Specification gate check
 
 - [x] Each scenario has a testable expected behavior (section 2).
 - [x] No prototype claim remains; the earlier mention was a README mistake and is corrected (section 5, README).
 - [x] No unattended production remediation is in the MVP (sections 4 and intro).
 - [x] A reviewer can distinguish an observation, a hypothesis, and a proposed action (section 1).
 
-**Open item for the author:** answer the Step 1 question — *What evidence would turn a suspected cause into a supported diagnosis?* — in your own words. Section 1 gives a draft definition to react to.
+**Open item for the author:** answer this question — *What evidence would turn a suspected cause into a supported diagnosis?* — in your own words. Section 1 gives a draft definition to react to.
