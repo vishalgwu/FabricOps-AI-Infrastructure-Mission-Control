@@ -3,6 +3,7 @@
 No tool loops and no remediation: the model gets one evidence package and returns one answer.
 """
 import json
+import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -24,6 +25,7 @@ from app.schemas.common import RunStatus, Severity
 from app.schemas.domain import InvestigationReport
 
 BACKOFF_SECONDS = (0.5, 1.0, 2.0)
+log = logging.getLogger("fabricops.investigator")
 
 
 @dataclass
@@ -50,21 +52,27 @@ class InvestigationOutcome:
 class Investigator:
     def __init__(
         self,
-        provider: LLMProvider,
+        provider: LLMProvider | None = None,
         max_tokens: int = 8000,
         max_attempts: int = 3,
         sleep: Callable[[float], None] = time.sleep,
         max_output_chars: int = 60_000,
+        provider_factory: Callable[[], LLMProvider] | None = None,
     ):
+        """Give either a ready `provider` or a `provider_factory`. A factory is only called when the
+        model is actually needed, so a run that abstains on stale data never builds a client."""
+        if (provider is None) == (provider_factory is None):
+            raise ValueError("pass exactly one of provider or provider_factory")
         self._max_output_chars = max_output_chars
         self._provider = provider
+        self._provider_factory = provider_factory
         self._max_tokens = max_tokens
         self._max_attempts = max(1, max_attempts)
         self._sleep = sleep
 
     def investigate(self, pkg: EvidencePackage) -> InvestigationOutcome:
-        meta = InvestigationMetadata(provider=self._provider.name, model_id=None,
-                                     prompt_version=PROMPT_VERSION, llm_called=False)
+        meta = InvestigationMetadata(provider=self._provider.name if self._provider else "none",
+                                     model_id=None, prompt_version=PROMPT_VERSION, llm_called=False)
 
         # 1. Server-side abstention gate: stale/missing evidence never reaches the model.
         if pkg.abstention_reasons:
@@ -76,6 +84,17 @@ class Investigator:
             return self._failed(meta, "package_too_large", [str(exc)])
         request = ProviderRequest(system=system, user=user, json_schema=response_json_schema(),
                                   max_tokens=self._max_tokens)
+
+        if self._provider is None:  # build the client now, only because the model is needed
+            try:
+                self._provider = self._provider_factory()
+            except PermanentProviderError as exc:
+                return self._failed(meta, "provider_not_configured", [str(exc)[:300]])
+            except Exception as exc:  # noqa: BLE001
+                log.exception("could not create the LLM provider")
+                return self._failed(meta, "provider_not_configured",
+                                    [f"the model provider could not be created ({type(exc).__name__})"])
+        meta.provider = self._provider.name
 
         # 2. Call the model; retry only bounded transient failures.
         response = None
@@ -92,7 +111,10 @@ class Investigator:
             except ProviderRefusal as exc:
                 return self._failed(meta, "model_refused", [str(exc)])
             except PermanentProviderError as exc:
-                return self._failed(meta, "provider_error", [str(exc)])
+                return self._failed(meta, "provider_error", [str(exc)[:300]])
+            except Exception as exc:  # noqa: BLE001 - never let a provider surprise become a crash
+                log.exception("unexpected provider error")
+                return self._failed(meta, "provider_error", [f"unexpected provider error ({type(exc).__name__})"])
         assert response is not None
         meta.model_id, meta.latency_ms = response.model_id, response.latency_ms
         meta.usage, meta.request_id = response.usage, response.request_id

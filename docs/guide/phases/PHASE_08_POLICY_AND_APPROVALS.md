@@ -42,9 +42,9 @@ must be no execution adapter."
 
 ## Acceptance
 
--   [ ] Policy is independent of LLM output.
--   [ ] High-risk proposals cannot auto-approve.
--   [ ] Approvals bind to proposal hash/version.
--   [ ] Expired or changed proposals cannot reuse approval.
--   [ ] Decisions persist after restart.
--   [ ] No action execution code exists.
+-   [x] Policy is independent of LLM output.
+-   [x] High-risk proposals cannot auto-approve.
+-   [x] Approvals bind to proposal hash/version.
+-   [x] Expired or changed proposals cannot reuse approval.
+-   [x] Decisions persist after restart.
+-   [x] No action execution code exists.

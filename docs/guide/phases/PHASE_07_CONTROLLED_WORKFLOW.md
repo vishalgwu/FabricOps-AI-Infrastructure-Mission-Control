@@ -42,10 +42,10 @@ unrestricted recursive tool calling."
 
 ## Acceptance
 
--   [ ] Normal workflow reaches a valid terminal state.
--   [ ] Stale/missing data reaches ABSTAINED.
--   [ ] Failures reach FAILED with safe error details.
--   [ ] Limits stop excessive work.
--   [ ] Duplicate start requests do not create duplicate runs.
--   [ ] Events replay after refresh/reconnect.
--   [ ] No automatic remediation exists.
+-   [x] Normal workflow reaches a valid terminal state.
+-   [x] Stale/missing data reaches ABSTAINED.
+-   [x] Failures reach FAILED with safe error details.
+-   [x] Limits stop excessive work.
+-   [x] Duplicate start requests do not create duplicate runs.
+-   [x] Events replay after refresh/reconnect.
+-   [x] No automatic remediation exists.

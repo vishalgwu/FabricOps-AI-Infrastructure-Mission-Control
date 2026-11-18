@@ -208,8 +208,8 @@ class InvestigationWorkflow:
         with self._stage(run.id, "investigate") as done:
             package = build_package(run.id, incident, inventory, results, doc_result, fixture.reference_time)
             investigator = Investigator(
-                self._provider_factory(), max_tokens=lim.llm_max_tokens, max_attempts=lim.llm_max_attempts,
-                sleep=self._sleep, max_output_chars=lim.max_output_chars)
+                provider_factory=self._provider_factory, max_tokens=lim.llm_max_tokens,
+                max_attempts=lim.llm_max_attempts, sleep=self._sleep, max_output_chars=lim.max_output_chars)
             outcome = investigator.investigate(package)
             m = outcome.metadata
             if outcome.status == RunStatus.FAILED:

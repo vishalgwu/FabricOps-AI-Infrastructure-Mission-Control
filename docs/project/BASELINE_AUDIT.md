@@ -1,5 +1,7 @@
 # Baseline Audit (Phase 00)
 
+> **Historical snapshot.** This records the repository as it was at the start of the build (documentation only, no application code). It is not updated as the project grows. For the current state, see the README and `docs/guide/CHECKLIST.md`.
+
 Audit date: 2026-11-18. Audited commit: `68b98df` on `main`. Everything below was checked with Git or shell commands on this date; nothing is taken from README claims.
 
 ## 1. Repository state

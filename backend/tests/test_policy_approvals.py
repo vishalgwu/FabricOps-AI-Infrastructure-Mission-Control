@@ -470,3 +470,15 @@ def test_the_only_state_a_decision_changes_is_recorded_state(waiting):
         after = {t: c.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in before}
     assert before == after  # approving added a decision row and a status change, nothing else
     assert RunStatus.COMPLETE.value == client.get(f"/api/runs/{run['id']}").json()["status"]
+
+
+def test_openapi_schema_builds_and_lists_every_documented_route(tmp_path):
+    client, _, _ = make(tmp_path, answer_with(READ_ONLY_TEXT))
+    r = client.get("/openapi.json")
+    assert r.status_code == 200
+    paths = set(r.json()["paths"])
+    assert {"/health", "/api/incidents", "/api/incidents/{incident_id}", "/api/incidents/{incident_id}/runs",
+            "/api/runs/{run_id}", "/api/runs/{run_id}/events", "/api/runs/{run_id}/report",
+            "/api/runs/{run_id}/proposal", "/api/proposals/{proposal_id}",
+            "/api/proposals/{proposal_id}/decision"} <= paths
+    assert client.get("/docs").status_code == 200

@@ -41,13 +41,13 @@ exact results."
 
 ## Acceptance
 
--   [ ] Backend starts locally.
--   [ ] `GET /health` returns a successful response.
--   [ ] Frontend starts locally.
--   [ ] Frontend can call backend health endpoint.
--   [ ] No secrets are committed.
--   [ ] Setup commands are documented.
--   [ ] At least one backend test passes.
+-   [x] Backend starts locally.
+-   [x] `GET /health` returns a successful response.
+-   [x] Frontend starts locally.
+-   [x] Frontend can call backend health endpoint.
+-   [x] No secrets are committed.
+-   [x] Setup commands are documented.
+-   [x] At least one backend test passes.
 
 ## Suggested commit
 

@@ -54,6 +54,13 @@ class AnthropicProvider:
                 )
             else:
                 response = self._client.messages.create(**kwargs)
+        except TypeError as exc:
+            if "authentication" in str(exc).lower():  # the SDK found no credentials at all
+                raise PermanentProviderError(
+                    "no API credentials are configured: set FABRICOPS_LLM_API_KEY (or ANTHROPIC_API_KEY) "
+                    "in backend/.env"
+                ) from exc
+            raise
         except (anthropic.RateLimitError, anthropic.APITimeoutError, anthropic.APIConnectionError) as exc:
             raise TransientProviderError(f"{type(exc).__name__}: {exc}") from exc
         except anthropic.APIStatusError as exc:

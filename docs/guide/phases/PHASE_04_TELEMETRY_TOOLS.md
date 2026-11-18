@@ -38,12 +38,12 @@ infrastructure connector."
 
 ## Acceptance
 
--   [ ] All tools are read-only.
--   [ ] Inputs and outputs are schema validated.
--   [ ] Unknown hosts and excessive ranges are rejected.
--   [ ] Evidence IDs are stable within a run.
--   [ ] Tool failures are distinct from valid empty/zero readings.
--   [ ] Tests cover expected and failure paths.
+-   [x] All tools are read-only.
+-   [x] Inputs and outputs are schema validated.
+-   [x] Unknown hosts and excessive ranges are rejected.
+-   [x] Evidence IDs are stable within a run.
+-   [x] Tool failures are distinct from valid empty/zero readings.
+-   [x] Tests cover expected and failure paths.
 
 ## Suggested commit
 

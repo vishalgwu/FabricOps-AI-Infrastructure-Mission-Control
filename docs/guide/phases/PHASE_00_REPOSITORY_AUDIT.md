@@ -26,10 +26,10 @@ changing anything.
 
 ## Acceptance
 
--   [ ] Existing work is preserved.
--   [ ] Repository state is documented.
--   [ ] No application code has been generated yet.
--   [ ] The next implementation branch is agreed.
+-   [x] Existing work is preserved.
+-   [x] Repository state is documented.
+-   [x] No application code has been generated yet. (true when the audit was done)
+-   [x] The next implementation branch is agreed. (`main`)
 
 ## Suggested commit
 

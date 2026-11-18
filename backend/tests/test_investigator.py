@@ -13,7 +13,7 @@ from app.llm.factory import create_provider
 from app.llm.investigator import Investigator
 from app.llm.mock import MockProvider
 from app.llm.package import build_package
-from app.llm.prompt import MAX_USER_CHARS, PROMPT_VERSION, SYSTEM_PROMPT, build_prompt
+from app.llm.prompt import MAX_USER_CHARS, PROMPT_VERSION, build_prompt
 from app.llm.provider import (
     PermanentProviderError,
     ProviderRefusal,
@@ -488,3 +488,62 @@ def test_no_tool_loop_or_execution_in_llm_package():
 def test_app_still_creates():
     assert create_app(":memory:")
     assert json  # silence unused import for editors
+
+
+# ---- audit additions: lazy provider, unexpected provider errors, missing credentials ----
+
+def test_investigator_needs_exactly_one_of_provider_or_factory():
+    with pytest.raises(ValueError):
+        Investigator()
+    with pytest.raises(ValueError):
+        Investigator(MockProvider({}), provider_factory=lambda: MockProvider({}))
+
+
+def test_factory_is_not_called_when_the_server_abstains():
+    built = []
+    pkg = make_package("s3_stale_telemetry")
+    out = Investigator(provider_factory=lambda: built.append(1)).investigate(pkg)
+    assert out.status == RunStatus.ABSTAINED and built == [] and out.metadata.provider == "none"
+
+
+def test_factory_is_called_once_and_the_provider_name_recorded(s1):
+    built = []
+
+    def factory():
+        built.append(1)
+        return MockProvider(good_answer(s1))
+
+    inv = Investigator(provider_factory=factory)
+    assert inv.investigate(s1).metadata.provider == "mock"
+    inv.investigate(s1)
+    assert built == [1]
+
+
+def test_provider_creation_failure_is_a_typed_outcome(s1):
+    def bad():
+        raise RuntimeError("password=hunter2")
+
+    out = Investigator(provider_factory=bad).investigate(s1)
+    assert out.status == RunStatus.FAILED and out.error_code == "provider_not_configured"
+    assert "hunter2" not in " ".join(out.errors) and "RuntimeError" in out.errors[0]
+    def unconfigured():
+        raise PermanentProviderError("no API credentials are configured")
+
+    out = Investigator(provider_factory=unconfigured).investigate(s1)
+    assert out.error_code == "provider_not_configured" and "no API credentials" in out.errors[0]
+
+
+def test_unexpected_provider_exceptions_do_not_crash_the_run(s1):
+    provider, out = investigate(s1, RuntimeError("password=hunter2"))
+    assert out.status == RunStatus.FAILED and out.error_code == "provider_error" and provider.calls == 1
+    assert "hunter2" not in " ".join(out.errors) and "RuntimeError" in out.errors[0]
+
+
+def test_missing_credentials_become_a_clear_configuration_error():
+    exc = TypeError('"Could not resolve authentication method. Expected one of api_key, auth_token, ..."')
+    p = AnthropicProvider(Settings(llm_enable_fallbacks=False), client=fake_client(exc=exc))
+    with pytest.raises(PermanentProviderError, match="FABRICOPS_LLM_API_KEY"):
+        p.generate_investigation(REQ)
+    other = AnthropicProvider(Settings(llm_enable_fallbacks=False), client=fake_client(exc=TypeError("bug")))
+    with pytest.raises(TypeError):  # unrelated programming errors are not disguised
+        other.generate_investigation(REQ)

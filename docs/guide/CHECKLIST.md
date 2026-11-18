@@ -6,25 +6,25 @@ verifying it.
 ## Planning
 
 -   [ ] Read project spec (docs/mvp.md)
--   [ ] Audit repository
--   [ ] Confirm architecture and stack
+-   [x] Audit repository
+-   [x] Confirm architecture and stack
 
 ## Foundation
 
--   [ ] Phase 01: runnable backend/frontend
--   [ ] Phase 02: schemas and synthetic fixtures
--   [ ] Phase 03: persistence and incident API
+-   [x] Phase 01: runnable backend/frontend
+-   [x] Phase 02: schemas and synthetic fixtures
+-   [x] Phase 03: persistence and incident API
 
 ## Investigation engine
 
--   [ ] Phase 04: telemetry tools
--   [ ] Phase 05: document retrieval and citations
--   [ ] Phase 06: LLM investigator
--   [ ] Phase 07: controlled workflow
+-   [x] Phase 04: telemetry tools
+-   [x] Phase 05: document retrieval and citations
+-   [x] Phase 06: LLM investigator (mock-tested; real adapter not yet run live)
+-   [x] Phase 07: controlled workflow
 
 ## Safe experience
 
--   [ ] Phase 08: deterministic policy and approvals
+-   [x] Phase 08: deterministic policy and approvals
 -   [ ] Phase 09: frontend and history
 
 ## Quality and release
@@ -35,11 +35,11 @@ verifying it.
 
 ## Final proof
 
--   [ ] Fresh-clone setup succeeds
+-   [x] Fresh-clone setup succeeds (backend tests, frontend build and lint; re-prove in Phase 12)
 -   [ ] All automated tests pass
 -   [ ] Three scenarios demonstrated
--   [ ] Stale telemetry abstention demonstrated
+-   [x] Stale telemetry abstention demonstrated
 -   [ ] Evidence citations resolve
--   [ ] Approval decision persists
--   [ ] No production remediation exists
+-   [x] Approval decision persists
+-   [x] No production remediation exists
 -   [ ] README matches verified implementation

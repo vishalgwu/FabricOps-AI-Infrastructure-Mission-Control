@@ -43,14 +43,14 @@ can show a measured reason."
 
 ## Acceptance
 
--   [ ] Chunks resolve to source and version.
--   [ ] Search returns relevant expected passages on the small curated
+-   [x] Chunks resolve to source and version.
+-   [x] Search returns relevant expected passages on the small curated
     set.
--   [ ] No-match returns an explicit empty result.
--   [ ] Citation IDs are stable.
--   [ ] Prompt-injection text in a document cannot change tool
+-   [x] No-match returns an explicit empty result.
+-   [x] Citation IDs are stable.
+-   [x] Prompt-injection text in a document cannot change tool
     permissions.
--   [ ] Retrieval tests are reproducible.
+-   [x] Retrieval tests are reproducible.
 
 ## Suggested commit
 

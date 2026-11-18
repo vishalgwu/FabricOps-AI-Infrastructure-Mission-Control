@@ -5,7 +5,7 @@ export default function Home() {
     <section>
       <h2>Status</h2>
       <HealthStatus />
-      <p>All data in FabricOps is synthetic. Investigations are not implemented yet.</p>
+      <p>All data in FabricOps is synthetic. The investigation screens arrive in Phase 09; until then use the API (see the README).</p>
     </section>
   )
 }

@@ -47,12 +47,12 @@ calls or remediation."
 
 ## Acceptance
 
--   [ ] Create/list/read incident endpoints work.
--   [ ] IDs are stable and immutable.
--   [ ] Restart persistence test passes.
--   [ ] Invalid state transitions are rejected.
--   [ ] API validation errors are clear.
--   [ ] Database access is not embedded directly in route handlers.
+-   [x] Create/list/read incident endpoints work.
+-   [x] IDs are stable and immutable.
+-   [x] Restart persistence test passes.
+-   [x] Invalid state transitions are rejected.
+-   [x] API validation errors are clear.
+-   [x] Database access is not embedded directly in route handlers.
 
 ## Suggested commit
 

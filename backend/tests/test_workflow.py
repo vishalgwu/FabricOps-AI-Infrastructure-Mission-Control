@@ -171,23 +171,53 @@ def test_unknown_host_scope_fails_before_any_tool_call(tmp_path):
     assert failure_codes(client, run["id"])[0]["stage"] == "validate_scope"
 
 
-def test_unexpected_errors_are_hidden_from_the_user(tmp_path):
-    def boom():
-        raise RuntimeError("secret-connection-string://user:hunter2@db")
-
-    app = create_app(str(tmp_path / "wf.db"))
-    app.state.workflow = None
-    client = TestClient(app)
+def workflow_with(app, docs=None, provider_factory=None):
     from app.api import deps
 
-    wf = InvestigationWorkflow(app.state.db, {fx.incident.scenario_type: fx for fx in load_all_fixtures().values()},
-                               load_corpus(), boom, build_proposal_service(app))
+    wf = InvestigationWorkflow(
+        app.state.db, {fx.incident.scenario_type: fx for fx in load_all_fixtures().values()},
+        docs or load_corpus(), provider_factory or (lambda: MockProvider(answer)), build_proposal_service(app))
     app.dependency_overrides[deps.get_workflow] = lambda: wf
+    return wf
+
+
+def test_unexpected_errors_are_hidden_from_the_user(tmp_path):
+    class ExplodingIndex:
+        def search(self, *args, **kwargs):
+            raise RuntimeError("secret-connection-string://user:hunter2@db")
+
+    app = create_app(str(tmp_path / "wf.db"))
+    client = TestClient(app)
+    workflow_with(app, docs=ExplodingIndex())
     run = finished(client, start(client, new_incident(client)).json()["id"])
     assert run["status"] == "FAILED" and run["error_code"] == "internal_error"
     blob = json.dumps(events(client, run["id"])) + json.dumps(run)
     assert "hunter2" not in blob and "secret-connection-string" not in blob and "Traceback" not in blob
     assert "see server logs" in blob
+
+
+def test_provider_that_cannot_be_created_is_a_clear_configuration_failure(tmp_path):
+    def boom():
+        raise RuntimeError("secret-connection-string://user:hunter2@db")
+
+    app = create_app(str(tmp_path / "wf.db"))
+    client = TestClient(app)
+    workflow_with(app, provider_factory=boom)
+    run = finished(client, start(client, new_incident(client)).json()["id"])
+    assert run["status"] == "FAILED" and run["error_code"] == "provider_not_configured"
+    blob = json.dumps(events(client, run["id"]))
+    assert "hunter2" not in blob and "RuntimeError" in blob  # the type is shown, the message is not
+
+
+def test_the_provider_is_never_built_for_a_run_that_abstains(tmp_path):
+    built = []
+    app = create_app(str(tmp_path / "wf.db"))
+    client = TestClient(app)
+    workflow_with(app, provider_factory=lambda: built.append(1) or MockProvider(answer))
+    stale = finished(client, start(client, new_incident(client, "stale_telemetry")).json()["id"])
+    assert stale["status"] == "ABSTAINED" and built == []
+    ok = finished(client, start(client, new_incident(client)).json()["id"])
+    assert ok["status"] == "COMPLETE" and built == [1]
 
 
 def test_run_time_limit(tmp_path):

@@ -1,6 +1,6 @@
 # FabricOps MVP Specification
 
-Status: **Draft for Phase 00–01 acceptance.** Nothing described here is implemented yet.
+Status: **Specification. Phases 00 to 08 of the build are implemented and tested against synthetic fixtures with a mock model** (see section 5 for exactly what is and is not built). The UI, evaluation harness, hardening and release work (Phases 09 to 12) are not built yet.
 
 All data in the MVP is **synthetic**. The MVP is **proposal-only**: no unattended production remediation, no shell execution, no host restarts, no deployments.
 
@@ -57,7 +57,7 @@ A **supported diagnosis** requires: fresh evidence for the affected host, a plau
 
 ## 3. Investigation output contract
 
-Every completed run produces one record with these fields. The server validates it; invalid records cannot be accepted as a successful investigation.
+Every completed run produces one record with these fields. The server validates it; invalid records cannot be accepted as a successful investigation. In the implementation the record is assembled from three stored parts: the run (`GET /api/runs/{id}`), the report (`GET /api/runs/{id}/report`, which holds the evidence-linked fields and `limitations`), and the proposal (`GET /api/runs/{id}/proposal`, which holds `risk_class`, `approval_status` and the decision).
 
 | Field | Type | Rules |
 |---|---|---|
@@ -66,7 +66,7 @@ Every completed run produces one record with these fields. The server validates 
 | `severity` | enum: `low` \| `medium` \| `high` \| `critical` \| `unknown` | `unknown` when evidence is insufficient. |
 | `observations[]` | list | Each has `text` and `evidence_ids[]` (non-empty). |
 | `hypotheses[]` | list | Each has `statement`, `confidence` (`low`/`medium`/`high`), `supporting_evidence_ids[]`, `counterevidence[]`, `citations[]`. Empty when abstaining. |
-| `citations[]` | list | Document passage IDs; each must resolve to an exact source and version and be relevant to the claim it supports. |
+| `citations[]` | list | Document passage IDs; each must resolve to an exact source and version and be relevant to the claim it supports. The server checks that every ID was retrieved for this run and resolves; whether a passage is actually relevant to the claim is not machine-checked and is left to the evaluation phase and human review. |
 | `missing_evidence[]` | list | Specific items needed (what, which host, which time window). Required and non-empty when abstaining. |
 | `proposed_next_test` | object or null | `description`, `target_scope` (host IDs), `parameters`, `evidence_ids[]`. Null when abstaining or recommending only visibility restoration. |
 | `risk_class` | enum: `read_only_diagnostic` \| `controlled_test` \| `write_or_deploy` | Set by deterministic server policy; the model's own risk estimate is advisory only. |
@@ -94,7 +94,9 @@ Invariants:
 | Claim | Status |
 |---|---|
 | Visual prototype with scripted responses exists | **No.** No prototype exists; an earlier README mentioned one by mistake. The UI is built from scratch in Phase 09. |
-| Any tool, retrieval, agent, UI, approval or evaluation capability | **Not implemented.** |
+| Typed read-only telemetry tools; versioned document retrieval with citations; validated LLM investigator; bounded, idempotent workflow with replayable events; deterministic policy and approvals | **Implemented** (Phases 04 to 08) and covered by automated tests on synthetic fixtures. The model is mocked in tests: the real Claude adapter has not been run against the live API. |
+| Reviewer identity for approvals | **Demo stand-in only** (a request header naming a configured demo reviewer). Not authentication. |
+| Mission-control UI, evaluation harness with reported results, security and reliability hardening, release and demo | **Not implemented** (Phases 09 to 12). |
 
 ## 6. Specification gate check
 

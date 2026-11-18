@@ -57,10 +57,10 @@ remediation."
 
 ## Acceptance
 
--   [ ] Provider credentials stay server-side.
--   [ ] Provider can be mocked in tests.
--   [ ] Structured output is validated.
--   [ ] Invented evidence IDs are rejected.
--   [ ] Observations and hypotheses are distinct.
--   [ ] Missing/stale evidence can produce abstention.
--   [ ] Provider/model/prompt metadata is recorded.
+-   [x] Provider credentials stay server-side.
+-   [x] Provider can be mocked in tests.
+-   [x] Structured output is validated.
+-   [x] Invented evidence IDs are rejected.
+-   [x] Observations and hypotheses are distinct.
+-   [x] Missing/stale evidence can produce abstention.
+-   [x] Provider/model/prompt metadata is recorded.

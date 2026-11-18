@@ -48,12 +48,12 @@ implement the LLM or UI features."
 
 ## Acceptance
 
--   [ ] All three fixtures load through validation.
--   [ ] Invalid data is rejected with useful errors.
--   [ ] Units and timestamps are explicit.
--   [ ] Synthetic provenance is visible.
--   [ ] Evaluation answer key is separate.
--   [ ] Tests cover malformed and missing data.
+-   [x] All three fixtures load through validation.
+-   [x] Invalid data is rejected with useful errors.
+-   [x] Units and timestamps are explicit.
+-   [x] Synthetic provenance is visible.
+-   [x] Evaluation answer key is separate.
+-   [x] Tests cover malformed and missing data.
 
 ## Suggested commit
 
