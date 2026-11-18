@@ -79,11 +79,13 @@ class InvestigationWorkflow:
         limits: WorkflowLimits = WorkflowLimits(),
         monotonic: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
+        adapter_factory: Callable[[ScenarioFixture], FixtureAdapter] = FixtureAdapter.from_fixture,
     ):
         self._db = db
         self._fixtures = fixtures
         self._docs = docs
         self._provider_factory = provider_factory
+        self._adapter_factory = adapter_factory
         self._proposals = proposals
         self.limits = limits
         self._monotonic = monotonic
@@ -157,7 +159,7 @@ class InvestigationWorkflow:
             done({"hosts": inventory, "affected_hosts": incident.affected_hosts, "planned_tool_calls": planned})
 
         # 3. Collect read-only telemetry through the typed tools (every call is counted)
-        tools = TelemetryTools(FixtureAdapter.from_fixture(fixture), run.id, self._evidence, allowed_hosts=set(inventory))
+        tools = TelemetryTools(self._adapter_factory(fixture), run.id, self._evidence, allowed_hosts=set(inventory))
         results: list[ToolResult] = []
         calls = 0
 

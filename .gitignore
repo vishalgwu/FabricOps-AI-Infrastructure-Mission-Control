@@ -26,3 +26,6 @@ dist/
 Thumbs.db
 .idea/
 .vscode/
+
+# Live smoke-test output (real model responses; review sheets are filled in by hand)
+backend/evals/live_runs/

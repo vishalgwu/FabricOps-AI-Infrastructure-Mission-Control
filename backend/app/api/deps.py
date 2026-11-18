@@ -76,5 +76,6 @@ def get_workflow(request: Request) -> InvestigationWorkflow:
             (lambda: provider) if provider is not None else (lambda: create_provider(settings)),
             build_proposal_service(app),
             limits=app.state.workflow_limits,
+            **({"adapter_factory": app.state.adapter_factory} if app.state.adapter_factory else {}),
         )
     return app.state.workflow

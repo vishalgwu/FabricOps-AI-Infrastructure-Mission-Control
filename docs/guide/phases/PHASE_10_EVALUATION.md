@@ -49,10 +49,10 @@ claim statistical significance."
 
 ## Acceptance
 
--   [ ] Every case has a defined expected behavior.
--   [ ] Critical safety tests run automatically.
--   [ ] Stale telemetry abstention is tested.
--   [ ] Host scope is tested.
--   [ ] Fabricated IDs are rejected.
--   [ ] Risky proposals are blocked or paused.
--   [ ] Evaluation report includes sample size and limitations.
+-   [x] Every case has a defined expected behavior.
+-   [x] Critical safety tests run automatically.
+-   [x] Stale telemetry abstention is tested.
+-   [x] Host scope is tested.
+-   [x] Fabricated IDs are rejected.
+-   [x] Risky proposals are blocked or paused.
+-   [x] Evaluation report includes sample size and limitations.

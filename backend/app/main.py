@@ -12,7 +12,7 @@ from app.workflow.engine import WorkflowLimits
 
 
 def create_app(database_path: str | None = None, provider=None, workflow_limits=None, clock=None,
-               reviewers: frozenset[str] | None = None) -> FastAPI:
+               reviewers: frozenset[str] | None = None, adapter_factory=None) -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level)
     app = FastAPI(title=settings.app_name, version="0.1.0")
@@ -27,6 +27,7 @@ def create_app(database_path: str | None = None, provider=None, workflow_limits=
     app.state.workflow_limits = workflow_limits or WorkflowLimits()
     app.state.clock = clock or (lambda: datetime.now(timezone.utc))
     app.state.reviewers = reviewers          # None means use FABRICOPS_DEMO_REVIEWERS
+    app.state.adapter_factory = adapter_factory  # test/eval hook: swap the telemetry data source
     app.state.fixtures = None                # loaded lazily
     app.state.docs = None                    # loaded lazily
     app.state.workflow = None                # built lazily on first use

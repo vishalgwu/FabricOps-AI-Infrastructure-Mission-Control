@@ -20,7 +20,7 @@ Three synthetic scenarios are built in: **inference slowdown** (one host, health
 
 ## Status
 
-This is a work in progress. The backend and the UI are built (Phases 00 to 09). Evaluation, hardening and release work (Phases 10 to 12) are not.
+This is a work in progress. The backend, the UI and an evaluation of the safeguards are built (Phases 00 to 10). Hardening and release work (Phases 11 and 12) are not.
 
 | Phase | What | State |
 |---|---|---|
@@ -34,13 +34,13 @@ This is a work in progress. The backend and the UI are built (Phases 00 to 09). 
 | 07 | Bounded, idempotent investigation workflow | Done |
 | 08 | Deterministic policy, hashed proposals, approvals | Done |
 | 09 | Mission-control UI and history | Done, but see below |
-| 10 | Evaluation with reported results | **Not started** |
+| 10 | Evaluation with reported results | Done for the safeguards, with a scripted model. The claim-support review and the live-model smoke test are **not done** (see below) |
 | 11 | Security and reliability hardening | **Not started** |
 | 12 | Release, demo script, fresh-clone proof | **Not started** |
 
-**What has been verified:** 286 automated backend tests and 64 frontend tests pass, and the frontend type-checks, builds and lints. The UI was driven in a real browser against the real backend: creating an incident, starting an investigation, opening an evidence record and a cited runbook passage, approving a proposal, reloading the page (state came back from the server), the abstained state, run history, and an unknown run. The stale-telemetry scenario abstains in about a second, and a missing API key produces a clear error rather than a crash. Earlier (Phase 00 to 08) a fresh clone from GitHub installed and passed the tests.
+**What has been verified:** 340 automated backend tests (including a 27-case evaluation) and 64 frontend tests pass, and the frontend type-checks, builds and lints. The UI was driven in a real browser against the real backend: creating an incident, starting an investigation, opening an evidence record and a cited runbook passage, approving a proposal, reloading the page (state came back from the server), the abstained state, run history, and an unknown run. The stale-telemetry scenario abstains in about a second, and a missing API key produces a clear error rather than a crash. Earlier (Phase 00 to 08) a fresh clone from GitHub installed and passed the tests.
 
-**What has not been verified:** the real Claude adapter has **never been run against the live API**. Every model response in the tests is a mock, so the end-to-end path "real model → validated report" is unproven, and the request shape (structured output, effort, refusal fallbacks) was written from the SDK documentation and tested only against a fake client. Please try it once with your own key before relying on it. The scenarios that need the model (inference slowdown, link instability) have only been run with scripted mock answers, including in the browser check above (the model was a scripted stand-in; everything else was real). The page layout was checked by measuring it at desktop and phone widths, not by looking at screenshots, because the browser pane could not capture them. There is no evaluation of answer quality yet (Phase 10).
+**What has not been verified:** the real Claude adapter has **never been run against the live API**. Every model response in the tests is a mock, so the end-to-end path "real model → validated report" is unproven, and the request shape (structured output, effort, refusal fallbacks) was written from the SDK documentation and tested only against a fake client. Please try it once with your own key before relying on it. The scenarios that need the model (inference slowdown, link instability) have only been run with scripted mock answers, including in the browser check above (the model was a scripted stand-in; everything else was real). The page layout was checked by measuring it at desktop and phone widths, not by looking at screenshots, because the browser pane could not capture them. There is no evaluation of answer quality: the Phase 10 evaluation scripts the model, so it measures the safeguards around it, not Claude (see Evaluation).
 
 ## How it works
 
@@ -88,6 +88,22 @@ npm run lint
 ```
 
 Interactive API docs are at `http://localhost:8000/docs`.
+
+### Evaluation
+
+```bash
+cd backend
+.venv/Scripts/python -m evals                  # run all 27 cases and print the metrics
+.venv/Scripts/python -m evals --case E03       # one case
+.venv/Scripts/python -m evals --write-report   # regenerate docs/evaluation/EVAL_REPORT.md
+.venv/Scripts/python -m evals.live             # OPTIONAL: real model, real (billed) requests, needs an API key
+```
+
+The dataset (`backend/data/evals/dataset.v1.json`) has 27 cases covering: normal inference slowdown, isolated network instability, stale telemetry, missing telemetry, contradictory metrics, irrelevant and absent documentation, unknown host, tool timeout, malicious instructions in logs (model resists and model obeys), a fabricated evidence ID, risky proposals, a proposal changed after approval, an expired approval, an unauthorised reviewer, a duplicate start, a malformed model response and a provider outage. Each case defines its expected behaviour in the dataset, outside anything the model sees (the runner also checks that no case ID or answer key appears in a prompt).
+
+Each case runs through the real application (HTTP API, workflow, policy, database) with a **scripted** model: one good answer, or one specific kind of bad answer. So the evaluation measures the **safeguards around the model**, not the model. Current result: all 27 cases pass, and the critical safety metrics are at full count (for example: 4/4 stale, missing, timed-out or contradictory cases abstained; 4/4 bad-input cases stopped before the model was called; 2/2 fabricated IDs rejected; 3/3 out-of-scope proposals blocked; 2/2 risky proposals paused or blocked; 0 approvals without a recorded decision). Read the denominators: these are counts out of small totals on one synthetic fixture per scenario, written alongside the safeguards they test. They are not statistically meaningful and are not an accuracy estimate. The full report, with one known gap the system does not catch (an irrelevant but retrieved document is accepted as a citation), is in [docs/evaluation/EVAL_REPORT.md](docs/evaluation/EVAL_REPORT.md). A test checks that the report is up to date, and other tests break a safeguard on purpose to prove the evaluation fails when it should.
+
+What is **not** done: the manual claim-support review ([rubric](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md)) needs real model output, so it has not been done and its results log is empty; the live smoke test needs an API key and has not been run; latency and token cost are therefore not reported.
 
 ### Use the UI
 
@@ -171,15 +187,16 @@ backend/
     retrieval/   chunker, BM25 index, search     domain/     fixture loader, run state machine
   data/
     fixtures/    three synthetic scenarios       docs/       synthetic runbooks and manifest
-    evals/       answer keys (never read at runtime)
-  tests/         286 tests
+    evals/       answer keys and the evaluation dataset (never read at runtime)
+  tests/         340 tests (the evaluation cases run as 27 of them)
+  evals/         evaluation runner, scripted model behaviours, metrics, report generator, optional live smoke test
 frontend/        React + TypeScript + Vite: src/api (typed client), src/pages, src/components, tests beside the code (64 tests)
-docs/            specification, build guide, per-phase instructions, baseline audit
+docs/            specification, build guide, per-phase instructions, baseline audit, evaluation report and claim-support rubric
 ```
 
 ## Known limitations
 
-- **The real model path is unproven** (see Status). No answer-quality evaluation exists yet.
+- **The real model path is unproven** (see Status). The evaluation scripts the model, so there is no measurement of answer quality, and no manual claim-support review has been done.
 - **UI scope:** it polls (every second while a run is active, every 10 seconds while one waits for approval) rather than streaming, uses hash routing, and shows every evidence record for a run in one table. There is no sign-in. Chart and trend views are out of scope.
 - **Approval identity is a demo stand-in.** Reviewers are names in a request header; anyone who can reach the API can send one. It is not authentication, and the API as a whole has no authentication.
 - **A server stop mid-run leaves that run `RUNNING`.** Recovery is planned for Phase 11. Background work uses in-process tasks, which suits one local server, not several workers.
@@ -196,5 +213,6 @@ docs/            specification, build guide, per-phase instructions, baseline au
 - [docs/guide/02_ARCHITECTURE.md](docs/guide/02_ARCHITECTURE.md): target architecture, entities, run state machine
 - [docs/guide/03_MILESTONES_AND_ACCEPTANCE.md](docs/guide/03_MILESTONES_AND_ACCEPTANCE.md): phase gates and final acceptance checklist
 - [docs/guide/phases](docs/guide/phases): per-phase build instructions
+- [docs/evaluation/EVAL_REPORT.md](docs/evaluation/EVAL_REPORT.md) and [docs/evaluation/CLAIM_SUPPORT_RUBRIC.md](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md): evaluation results and how to review claim support by hand
 - [docs/project/BASELINE_AUDIT.md](docs/project/BASELINE_AUDIT.md): the Phase 00 starting-point snapshot
 - [docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf](docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf): the original roadmap (an earlier 14-step plan, superseded by the phases above)

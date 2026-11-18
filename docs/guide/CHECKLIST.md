@@ -29,7 +29,7 @@ verifying it.
 
 ## Quality and release
 
--   [ ] Phase 10: evaluation
+-   [x] Phase 10: evaluation (scripted model; claim-support review and live smoke test not yet run)
 -   [ ] Phase 11: security and reliability
 -   [ ] Phase 12: release and demo
 
