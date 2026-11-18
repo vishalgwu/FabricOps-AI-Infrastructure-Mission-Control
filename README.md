@@ -20,7 +20,7 @@ Three synthetic scenarios are built in: **inference slowdown** (one host, health
 
 ## Status
 
-This is a work in progress. The backend, the UI and an evaluation of the safeguards are built (Phases 00 to 10). Hardening and release work (Phases 11 and 12) are not.
+This is a work in progress. The backend, the UI, an evaluation of the safeguards, and a security and reliability review are built (Phases 00 to 11). Release work (Phase 12) is not. **It is a local demo and is not safe to expose to a network** (no authentication, no rate limiting).
 
 | Phase | What | State |
 |---|---|---|
@@ -35,10 +35,10 @@ This is a work in progress. The backend, the UI and an evaluation of the safegua
 | 08 | Deterministic policy, hashed proposals, approvals | Done |
 | 09 | Mission-control UI and history | Done, but see below |
 | 10 | Evaluation with reported results | Done for the safeguards, with a scripted model. The claim-support review and the live-model smoke test are **not done** (see below) |
-| 11 | Security and reliability hardening | **Not started** |
+| 11 | Security and reliability review and hardening | Done: 10 confirmed issues fixed with tests; unresolved risks are listed in [the review](docs/security/THREAT_REVIEW.md) |
 | 12 | Release, demo script, fresh-clone proof | **Not started** |
 
-**What has been verified:** 340 automated backend tests (including a 27-case evaluation) and 64 frontend tests pass, and the frontend type-checks, builds and lints. The UI was driven in a real browser against the real backend: creating an incident, starting an investigation, opening an evidence record and a cited runbook passage, approving a proposal, reloading the page (state came back from the server), the abstained state, run history, and an unknown run. The stale-telemetry scenario abstains in about a second, and a missing API key produces a clear error rather than a crash. Earlier (Phase 00 to 08) a fresh clone from GitHub installed and passed the tests.
+**What has been verified:** 383 automated backend tests (including a 27-case evaluation and the security regression tests) and 68 frontend tests pass, and the frontend type-checks, builds and lints. The UI was driven in a real browser against the real backend: creating an incident, starting an investigation, opening an evidence record and a cited runbook passage, approving a proposal, reloading the page (state came back from the server), the abstained state, run history, and an unknown run. The stale-telemetry scenario abstains in about a second, and a missing API key produces a clear error rather than a crash. Earlier (Phase 00 to 08) a fresh clone from GitHub installed and passed the tests.
 
 **What has not been verified:** the real Claude adapter has **never been run against the live API**. Every model response in the tests is a mock, so the end-to-end path "real model → validated report" is unproven, and the request shape (structured output, effort, refusal fallbacks) was written from the SDK documentation and tested only against a fake client. Please try it once with your own key before relying on it. The scenarios that need the model (inference slowdown, link instability) have only been run with scripted mock answers, including in the browser check above (the model was a scripted stand-in; everything else was real). The page layout was checked by measuring it at desktop and phone widths, not by looking at screenshots, because the browser pane could not capture them. There is no evaluation of answer quality: the Phase 10 evaluation scripts the model, so it measures the safeguards around it, not Claude (see Evaluation).
 
@@ -72,7 +72,8 @@ Backend (from `backend/`):
 
 ```bash
 python -m venv .venv
-.venv/Scripts/python -m pip install -e ".[dev]"   # on macOS/Linux use .venv/bin/python
+.venv/Scripts/python -m pip install --upgrade pip      # on macOS/Linux use .venv/bin/python
+.venv/Scripts/python -m pip install -e ".[dev]"
 .venv/Scripts/python -m pytest
 .venv/Scripts/python -m uvicorn app.main:app --port 8000
 ```
@@ -82,12 +83,18 @@ Frontend (from `frontend/`, with the backend running):
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm test         # 64 tests (vitest, jsdom)
+npm test         # 68 tests (vitest, jsdom)
 npm run build    # type-check and production build
 npm run lint
 ```
 
 Interactive API docs are at `http://localhost:8000/docs`.
+
+### Security and reliability
+
+[docs/security/THREAT_REVIEW.md](docs/security/THREAT_REVIEW.md) is the Phase 11 review: how it was done (probe each suspected weakness, fix only what is confirmed), the 10 issues it found and fixed, a checklist mapping every threat and control to the tests that guard it (a test fails if the document names a test that does not exist), and the risks that remain.
+
+What the backend now does: bounds every query integer and body size (HTTP 413 over 64 KiB), rejects control characters in text fields, sends `nosniff` / `no-store` / `X-Frame-Options` / `Referrer-Policy` headers on every response, turns unexpected errors into a safe `internal_error` or `database_unavailable` response with no detail, redacts secrets from the final text of every log line (including tracebacks and uvicorn's own logs, and the configured API key in any format), caps the model call by the run's remaining time so a run cannot outlive its limit, and closes runs that a server restart interrupted. Dependency checks (`pip-audit`, `npm audit`) were clean at review time. This is hardening of a local demo, not a clearance to deploy it.
 
 ### Evaluation
 
@@ -172,6 +179,7 @@ Copy the relevant block of [.env.example](.env.example) to `backend/.env` and `f
 | `FABRICOPS_LLM_EFFORT`, `_MAX_TOKENS`, `_TIMEOUT_SECONDS`, `_MAX_ATTEMPTS`, `_ENABLE_FALLBACKS` | `high`, 8000, 120, 3, `true` | Model request settings. Retries are for transient errors only |
 | `FABRICOPS_DEMO_REVIEWERS` | `demo-reviewer` | Names allowed to approve or reject (comma-separated) |
 | `FABRICOPS_APPROVAL_TTL_MINUTES` | 1440 | How long a pending proposal can be decided |
+| `FABRICOPS_MAX_REQUEST_BYTES` | 65536 | Largest request body accepted (larger gets HTTP 413) |
 
 Workflow limits (tool calls, hosts, time range, evidence records, document chunks, output size, run time) are defined in `WorkflowLimits` in `backend/app/workflow/engine.py`.
 
@@ -188,10 +196,10 @@ backend/
   data/
     fixtures/    three synthetic scenarios       docs/       synthetic runbooks and manifest
     evals/       answer keys and the evaluation dataset (never read at runtime)
-  tests/         340 tests (the evaluation cases run as 27 of them)
+  tests/         383 tests (the evaluation cases run as 27 of them)
   evals/         evaluation runner, scripted model behaviours, metrics, report generator, optional live smoke test
-frontend/        React + TypeScript + Vite: src/api (typed client), src/pages, src/components, tests beside the code (64 tests)
-docs/            specification, build guide, per-phase instructions, baseline audit, evaluation report and claim-support rubric
+frontend/        React + TypeScript + Vite: src/api (typed client), src/pages, src/components, tests beside the code (68 tests)
+docs/            specification, build guide, per-phase instructions, baseline audit, evaluation report, claim-support rubric and security review
 ```
 
 ## Known limitations
@@ -199,7 +207,9 @@ docs/            specification, build guide, per-phase instructions, baseline au
 - **The real model path is unproven** (see Status). The evaluation scripts the model, so there is no measurement of answer quality, and no manual claim-support review has been done.
 - **UI scope:** it polls (every second while a run is active, every 10 seconds while one waits for approval) rather than streaming, uses hash routing, and shows every evidence record for a run in one table. There is no sign-in. Chart and trend views are out of scope.
 - **Approval identity is a demo stand-in.** Reviewers are names in a request header; anyone who can reach the API can send one. It is not authentication, and the API as a whole has no authentication.
-- **A server stop mid-run leaves that run `RUNNING`.** Recovery is planned for Phase 11. Background work uses in-process tasks, which suits one local server, not several workers.
+- **No rate limiting or quotas.** A client can create unlimited incidents and runs; with a real API key that means billed model calls.
+- **Single process.** If the server stops mid-run, the next start closes that run as `FAILED` (`interrupted`). That is right for one local server and wrong for several workers; background work is in-process too.
+- **Prompt injection cannot expand what the system does, but can still sway what the model writes.** Labelling, evidence links and human review are the defence there. More in the [security review](docs/security/THREAT_REVIEW.md), which lists every unresolved risk.
 - **Policy classification is keyword-based**, tuned on a small set of examples. It errs toward requiring approval and can misjudge unusual phrasing. Whether a cited passage is actually *relevant* to a claim is not machine-checked; only that it exists and was retrieved for the run.
 - **Retrieval is a lexical baseline** tested on a handful of curated queries; very short queries can match weakly.
 - **Incidents draw their data from the fixture matching their scenario type**; there is no live telemetry connector by design. Host IDs are checked against the scenario's inventory when a run starts, not when the incident is created.
@@ -213,6 +223,7 @@ docs/            specification, build guide, per-phase instructions, baseline au
 - [docs/guide/02_ARCHITECTURE.md](docs/guide/02_ARCHITECTURE.md): target architecture, entities, run state machine
 - [docs/guide/03_MILESTONES_AND_ACCEPTANCE.md](docs/guide/03_MILESTONES_AND_ACCEPTANCE.md): phase gates and final acceptance checklist
 - [docs/guide/phases](docs/guide/phases): per-phase build instructions
+- [docs/security/THREAT_REVIEW.md](docs/security/THREAT_REVIEW.md): the security and reliability review, with unresolved risks
 - [docs/evaluation/EVAL_REPORT.md](docs/evaluation/EVAL_REPORT.md) and [docs/evaluation/CLAIM_SUPPORT_RUBRIC.md](docs/evaluation/CLAIM_SUPPORT_RUBRIC.md): evaluation results and how to review claim support by hand
 - [docs/project/BASELINE_AUDIT.md](docs/project/BASELINE_AUDIT.md): the Phase 00 starting-point snapshot
 - [docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf](docs/FabricOps_Complete_Project_and_GenAI_Roadmap.pdf): the original roadmap (an earlier 14-step plan, superseded by the phases above)

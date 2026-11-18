@@ -1,6 +1,6 @@
 # FabricOps MVP Specification
 
-Status: **Specification. Phases 00 to 10 of the build are implemented and tested against synthetic fixtures with a mock model** (see section 5 for exactly what is and is not built). Hardening and release work (Phases 11 and 12) are not built yet.
+Status: **Specification. Phases 00 to 11 of the build are implemented and tested against synthetic fixtures with a mock model** (see section 5 for exactly what is and is not built). Release work (Phase 12) is not built yet.
 
 All data in the MVP is **synthetic**. The MVP is **proposal-only**: no unattended production remediation, no shell execution, no host restarts, no deployments.
 
@@ -98,7 +98,8 @@ Invariants:
 | Reviewer identity for approvals | **Demo stand-in only** (a request header naming a configured demo reviewer). Not authentication. |
 | Mission-control UI (incident intake, run timeline, evidence and citation viewers, report with facts / hypotheses / limitations, proposal and approval panel, run history) | **Implemented** (Phase 09), covered by frontend tests and checked in a browser against the real backend with a scripted model. |
 | Evaluation harness (27 cases with a scripted model, metrics with denominators, a report, a claim-support rubric, an optional live smoke test) | **Implemented** (Phase 10). It measures the safeguards, not the model. The manual claim-support review and the live smoke test have **not** been run. |
-| Security and reliability hardening, release and demo | **Not implemented** (Phases 11 and 12). |
+| Security and reliability review and hardening (input and size bounds, safe errors and headers, log redaction, restart recovery, a time budget on the model call) | **Implemented** (Phase 11). It hardens a local demo; there is no authentication or rate limiting, and the unresolved risks are listed in `docs/security/THREAT_REVIEW.md`. |
+| Release, demo script, fresh-clone proof | **Not implemented** (Phase 12). |
 
 ## 6. Specification gate check
 

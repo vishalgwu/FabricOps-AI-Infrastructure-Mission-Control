@@ -3,6 +3,7 @@ import { ApiError, api } from '../api/client'
 import { Empty, ErrorBox, Loading, Section, StatusBadge, SyntheticTag } from '../components/Common'
 import { SCENARIO_LABELS, formatDuration, formatTime } from '../format'
 import { toApiError, useLoad } from '../hooks'
+import { newIdempotencyKey } from '../idempotency'
 import { links, navigate } from '../router'
 
 export default function IncidentPage({ incidentId }: { incidentId: string }) {
@@ -32,7 +33,7 @@ export default function IncidentPage({ incidentId }: { incidentId: string }) {
     try {
       // A fresh key per click. A double click or a refresh cannot start two investigations: the
       // backend returns the run already in flight instead.
-      const { run, created } = await api.startRun(i.id, crypto.randomUUID())
+      const { run, created } = await api.startRun(i.id, newIdempotencyKey())
       if (created) navigate(links.run(run.id))
       else {
         setExisting(run.id)

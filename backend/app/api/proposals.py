@@ -26,7 +26,7 @@ class DecisionRequest(BaseModel):
 
     decision: DecisionKind
     proposal_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
-    reason: str = Field(min_length=1, max_length=1000)
+    reason: str = Field(min_length=1, max_length=1000, pattern=r"^[^\x00-\x08\x0b\x0c\x0e-\x1f\x7f]*$")
 
 
 def _view(svc: ProposalService, p: Proposal) -> ProposalView:

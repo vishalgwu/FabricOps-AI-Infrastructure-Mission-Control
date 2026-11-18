@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="FABRICOPS_", env_file=".env", extra="ignore")
 
     app_name: str = "FabricOps"
+    max_request_bytes: int = 65536             # request bodies larger than this get HTTP 413
     environment: str = "local"
     log_level: str = "INFO"
     # SQLite file. Defaults to backend/data/fabricops.db (git-ignored).

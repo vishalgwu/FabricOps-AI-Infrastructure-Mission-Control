@@ -6,7 +6,7 @@ import json
 import logging
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from pydantic import ValidationError
 
@@ -70,7 +70,9 @@ class Investigator:
         self._max_attempts = max(1, max_attempts)
         self._sleep = sleep
 
-    def investigate(self, pkg: EvidencePackage) -> InvestigationOutcome:
+    def investigate(self, pkg: EvidencePackage, time_left: Callable[[], float] | None = None) -> InvestigationOutcome:
+        """`time_left` returns the seconds remaining in the run's time limit. When given, no attempt starts
+        after it runs out, each attempt's timeout is capped to it, and retries do not sleep past it."""
         meta = InvestigationMetadata(provider=self._provider.name if self._provider else "none",
                                      model_id=None, prompt_version=PROMPT_VERSION, llm_called=False)
 
@@ -99,15 +101,23 @@ class Investigator:
         # 2. Call the model; retry only bounded transient failures.
         response = None
         for attempt in range(1, self._max_attempts + 1):
+            left = time_left() if time_left else None
+            if left is not None and left <= 0:
+                return self._failed(meta, "run_timeout", [f"the run's time limit was reached before the model answered "
+                                                          f"(after {attempt - 1} attempt(s))"])
             meta.attempts, meta.llm_called = attempt, True
             try:
-                response = self._provider.generate_investigation(request)
+                response = self._provider.generate_investigation(
+                    request if left is None else replace(request, timeout_seconds=left))
                 break
             except TransientProviderError as exc:
                 if attempt == self._max_attempts:
                     return self._failed(meta, "provider_unavailable",
                                         [f"gave up after {attempt} attempts: {exc}"])
-                self._sleep(BACKOFF_SECONDS[min(attempt - 1, len(BACKOFF_SECONDS) - 1)])
+                pause = BACKOFF_SECONDS[min(attempt - 1, len(BACKOFF_SECONDS) - 1)]
+                if time_left is not None and time_left() <= pause:
+                    return self._failed(meta, "run_timeout", [f"the run's time limit left no room to retry after: {exc}"[:300]])
+                self._sleep(pause)
             except ProviderRefusal as exc:
                 return self._failed(meta, "model_refused", [str(exc)])
             except PermanentProviderError as exc:

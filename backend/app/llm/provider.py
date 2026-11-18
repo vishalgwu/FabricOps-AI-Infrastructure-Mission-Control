@@ -25,6 +25,7 @@ class ProviderRequest:
     user: str
     json_schema: dict[str, Any]
     max_tokens: int
+    timeout_seconds: float | None = None  # what is left of the run's time limit; the provider must not exceed it
 
 
 @dataclass

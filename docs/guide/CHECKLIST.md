@@ -30,13 +30,13 @@ verifying it.
 ## Quality and release
 
 -   [x] Phase 10: evaluation (scripted model; claim-support review and live smoke test not yet run)
--   [ ] Phase 11: security and reliability
+-   [x] Phase 11: security and reliability (hardened for a local demo; unresolved risks are listed in docs/security/THREAT_REVIEW.md)
 -   [ ] Phase 12: release and demo
 
 ## Final proof
 
 -   [x] Fresh-clone setup succeeds (backend tests, frontend build and lint; re-prove in Phase 12)
--   [ ] All automated tests pass
+-   [x] All automated tests pass (backend and frontend; re-confirm in Phase 12)
 -   [ ] Three scenarios demonstrated
 -   [x] Stale telemetry abstention demonstrated
 -   [x] Evidence citations resolve (server-checked and openable in the UI)

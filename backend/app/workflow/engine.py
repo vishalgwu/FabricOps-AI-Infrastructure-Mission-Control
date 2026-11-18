@@ -212,7 +212,7 @@ class InvestigationWorkflow:
             investigator = Investigator(
                 provider_factory=self._provider_factory, max_tokens=lim.llm_max_tokens,
                 max_attempts=lim.llm_max_attempts, sleep=self._sleep, max_output_chars=lim.max_output_chars)
-            outcome = investigator.investigate(package)
+            outcome = investigator.investigate(package, time_left=lambda: deadline - self._monotonic())
             m = outcome.metadata
             if outcome.status == RunStatus.FAILED:
                 if m.llm_called:  # still record which model/prompt produced the failed attempt

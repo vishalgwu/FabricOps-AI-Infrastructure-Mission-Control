@@ -44,6 +44,8 @@ class AnthropicProvider:
                 "effort": self._effort,
                 "format": {"type": "json_schema", "schema": request.json_schema},
             },
+            # Never wait longer than the run has left, even if the configured timeout is longer.
+            timeout=min(request.timeout_seconds, self._timeout) if request.timeout_seconds else self._timeout,
         )
         started = time.monotonic()
         try:

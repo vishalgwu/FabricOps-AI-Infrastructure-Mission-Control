@@ -12,6 +12,8 @@ from app.workflow.engine import InvestigationWorkflow
 router = APIRouter(prefix="/api")
 
 _HOST_ID = r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+# C0 control characters except tab, line feed and carriage return, and DEL.
+_CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
 class IncidentCreate(BaseModel):
@@ -24,6 +26,20 @@ class IncidentCreate(BaseModel):
     scenario_type: ScenarioType
     severity: Severity = Severity.UNKNOWN
     affected_hosts: list[str] = Field(min_length=1, max_length=50)
+
+    @field_validator("title")
+    @classmethod
+    def _title_is_plain_text(cls, v: str) -> str:
+        if _CONTROL.search(v) or "\n" in v or "\r" in v or "\t" in v:
+            raise ValueError("must be a single line of plain text (no control characters)")
+        return v
+
+    @field_validator("description")
+    @classmethod
+    def _description_is_plain_text(cls, v: str) -> str:
+        if _CONTROL.search(v):
+            raise ValueError("must not contain control characters (line breaks and tabs are allowed)")
+        return v
 
     @field_validator("affected_hosts")
     @classmethod
@@ -49,7 +65,7 @@ def create_incident(body: IncidentCreate, svc: IncidentService = Depends(get_inc
 @router.get("/incidents", response_model=IncidentList)
 def list_incidents(
     limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0),
+    offset: int = Query(0, ge=0, le=2**31 - 1),
     svc: IncidentService = Depends(get_incident_service),
 ):
     items, total = svc.list(limit, offset)

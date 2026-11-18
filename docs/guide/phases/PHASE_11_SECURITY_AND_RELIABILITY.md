@@ -43,10 +43,10 @@ unresolved risks honestly."
 
 ## Acceptance
 
--   [ ] Prompt injection cannot expand tool permissions.
--   [ ] Unknown hosts and oversized requests are rejected.
--   [ ] Secrets are not logged or exposed to frontend.
--   [ ] Unauthorized approvals fail server-side.
--   [ ] Changed/expired proposals cannot reuse approval.
--   [ ] Provider/tool failures are visible and bounded.
--   [ ] No remediation execution path exists.
+-   [x] Prompt injection cannot expand tool permissions.
+-   [x] Unknown hosts and oversized requests are rejected.
+-   [x] Secrets are not logged or exposed to frontend.
+-   [x] Unauthorized approvals fail server-side.
+-   [x] Changed/expired proposals cannot reuse approval.
+-   [x] Provider/tool failures are visible and bounded.
+-   [x] No remediation execution path exists.

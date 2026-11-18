@@ -11,6 +11,8 @@ from app.storage.repositories import EvidenceRepository, ReportRepository
 
 router = APIRouter(prefix="/api")
 
+MAX_OFFSET = 2**31 - 1  # larger values cannot be stored by SQLite and used to cause a 500
+
 
 class RunSummary(Run):
     incident_title: str
@@ -27,7 +29,7 @@ class RunList(BaseModel):
 @router.get("/runs", response_model=RunList)
 def list_runs(
     limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0),
+    offset: int = Query(0, ge=0, le=MAX_OFFSET),
     svc: RunService = Depends(get_run_service),
 ):
     """Run history across all incidents, newest first."""
@@ -45,7 +47,7 @@ def get_run(run_id: str, svc: RunService = Depends(get_run_service)):
 @router.get("/runs/{run_id}/events")
 def get_run_events(
     run_id: str,
-    after_seq: int = Query(0, ge=0, description="Return only events after this sequence number"),
+    after_seq: int = Query(0, ge=0, le=MAX_OFFSET, description="Return only events after this sequence number"),
     svc: RunService = Depends(get_run_service),
 ):
     """Ordered stage and state events. A client that refreshed or reconnected passes the last

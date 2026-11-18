@@ -164,6 +164,27 @@ class RunRepository:
             self._event(conn, run_id, "status_changed", expected.value, target.value, error_code, now)
             return True
 
+    def fail_interrupted(self) -> list[str]:
+        """Close runs that were queued or running when the server stopped (they can never finish).
+
+        Waiting-for-approval runs are left alone: their state is fully stored and a human can still decide.
+        Returns the IDs that were closed. Safe to call when nothing needs closing.
+        """
+        now = datetime.now(timezone.utc)
+        message = json.dumps({"code": "interrupted", "message":
+                              "The server stopped while this investigation was running. Start a new one."})
+        with self._db.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            rows = conn.execute("SELECT id FROM runs WHERE status IN (?, ?)",
+                                (RunStatus.CREATED.value, RunStatus.RUNNING.value)).fetchall()
+            ids = [r["id"] for r in rows]
+            for run_id in ids:
+                conn.execute("UPDATE runs SET status = ?, finished_at = ?, error_code = ? WHERE id = ?",
+                             (RunStatus.FAILED.value, _iso(now), "interrupted", run_id))
+                self._event(conn, run_id, "stage_failed", None, None, message, now)
+                self._event(conn, run_id, "status_changed", "RUNNING", RunStatus.FAILED.value, "interrupted", now)
+        return ids
+
     def record_model_metadata(self, run_id: str, model_id: str | None, prompt_version: str | None) -> None:
         """Remember which model and prompt version produced this run's analysis."""
         with self._db.connect() as conn:
