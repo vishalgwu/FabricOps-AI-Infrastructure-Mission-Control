@@ -2,6 +2,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +14,16 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     # SQLite file. Defaults to backend/data/fabricops.db (git-ignored).
     database_path: str = str(Path(__file__).resolve().parents[2] / "data" / "fabricops.db")
+    # --- LLM provider (backend only; never exposed to the browser) ---
+    llm_provider: str = "anthropic"            # "anthropic" or "mock"
+    llm_model: str = "claude-opus-5-5"
+    # If unset, the Anthropic SDK falls back to ANTHROPIC_API_KEY / an `ant auth login` profile.
+    llm_api_key: SecretStr | None = None
+    llm_max_tokens: int = 8000
+    llm_effort: str = "high"                    # low | medium | high | xhigh | max
+    llm_timeout_seconds: float = 120.0
+    llm_max_attempts: int = 3                   # bounded retries for transient failures only
+    llm_enable_fallbacks: bool = True           # server-side refusal fallbacks (Anthropic beta)
     # Comma-separated list of allowed browser origins for the local frontend.
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 

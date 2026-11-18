@@ -10,9 +10,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Only needed to call the real Claude API. Tests and CI use the mock provider and need no key.
+llm = [
+    "anthropic>=1,<2",
+]
 dev = [
     "pytest>=8,<9",
     "httpx>=0.27,<1",
+    "anthropic>=1,<2",  # tests exercise the adapter with a fake client; no API key is needed
 ]
 
 [tool.setuptools.packages.find]

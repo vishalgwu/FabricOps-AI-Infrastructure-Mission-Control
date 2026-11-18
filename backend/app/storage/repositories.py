@@ -4,7 +4,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 from app.schemas.common import RunStatus
-from app.schemas.domain import EvidenceRecord, Incident, Run
+from app.schemas.domain import EvidenceRecord, Incident, InvestigationReport, Run
 from app.storage.db import Database
 
 
@@ -123,6 +123,12 @@ class RunRepository:
             self._event(conn, run_id, "status_changed", expected.value, target.value, error_code, now)
             return True
 
+    def record_model_metadata(self, run_id: str, model_id: str | None, prompt_version: str | None) -> None:
+        """Remember which model and prompt version produced this run's analysis."""
+        with self._db.connect() as conn:
+            conn.execute("UPDATE runs SET model_id = ?, prompt_version = ? WHERE id = ?",
+                         (model_id, prompt_version, run_id))
+
     def events(self, run_id: str) -> list[dict]:
         with self._db.connect() as conn:
             rows = conn.execute(
@@ -177,3 +183,22 @@ def _evidence(row: sqlite3.Row) -> EvidenceRecord:
     data["payload"] = json.loads(data["payload"])
     data["synthetic"] = bool(data["synthetic"])
     return EvidenceRecord(**data)
+
+
+class ReportRepository:
+    """Stores the validated investigation report for a run (one per run)."""
+
+    def __init__(self, db: Database):
+        self._db = db
+
+    def save(self, report: InvestigationReport) -> None:
+        with self._db.connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO investigation_reports (run_id, report, created_at) VALUES (?, ?, ?)",
+                (report.run_id, report.model_dump_json(), _iso(datetime.now(timezone.utc))),
+            )
+
+    def get(self, run_id: str) -> InvestigationReport | None:
+        with self._db.connect() as conn:
+            row = conn.execute("SELECT report FROM investigation_reports WHERE run_id = ?", (run_id,)).fetchone()
+        return InvestigationReport.model_validate_json(row["report"]) if row else None
