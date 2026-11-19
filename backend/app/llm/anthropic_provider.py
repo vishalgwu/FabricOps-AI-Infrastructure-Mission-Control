@@ -16,7 +16,7 @@ class AnthropicProvider:
     name = "anthropic"
 
     def __init__(self, settings: Settings, client: Any | None = None):
-        self._model = settings.llm_model
+        self._model = settings.resolved_model("anthropic")
         self._effort = settings.llm_effort
         self._timeout = settings.llm_timeout_seconds
         self._fallbacks = settings.llm_enable_fallbacks
@@ -27,7 +27,7 @@ class AnthropicProvider:
                 raise PermanentProviderError(
                     "the 'anthropic' package is not installed; run: pip install -e \".[llm]\""
                 ) from exc
-            key = settings.llm_api_key.get_secret_value() if settings.llm_api_key else None
+            key = settings.api_key_for("anthropic")
             # max_retries=0: retries are done by the investigator, so they stay bounded and logged.
             client = anthropic.Anthropic(api_key=key, max_retries=0, timeout=self._timeout)
         self._client = client

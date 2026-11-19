@@ -19,7 +19,7 @@ def create_app(database_path: str | None = None, provider=None, workflow_limits=
                reviewers: frozenset[str] | None = None, adapter_factory=None) -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level,
-                      secrets=[settings.llm_api_key.get_secret_value() if settings.llm_api_key else None])
+                      secrets=settings.all_secret_values())
     db = Database(database_path or settings.database_path)
 
     @asynccontextmanager

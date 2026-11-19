@@ -1,4 +1,4 @@
-# Pinned versions of everything the backend, its tests and the optional Anthropic SDK need (runtime + dev + llm extras).
+# Pinned versions of everything the backend, its tests and the optional Anthropic and OpenAI SDKs need.
 # Generated 2026-11-18 with Python 3.13 on Windows from a clean virtual environment:
 #   pip install -e ".[dev]" && pip freeze --exclude-editable
 # Install with:  pip install -r requirements-lock.txt && pip install -e . --no-deps
@@ -22,6 +22,7 @@ httpx2==2.16.2
 idna==3.20
 iniconfig==2.3.1
 jiter==0.19.0
+openai==3.55.1
 opentelemetry-api==1.45.2
 packaging==26.3
 pluggy==1.7.0

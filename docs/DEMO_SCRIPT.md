@@ -45,7 +45,7 @@ Pre-flight: the top right says "Backend ok". The Incidents page opens with a "Cr
 
 ## If you have an API key
 
-Set `FABRICOPS_LLM_API_KEY` (or `ANTHROPIC_API_KEY`) instead of `FABRICOPS_LLM_PROVIDER=demo`, and run the same script. The
+Put `FABRICOPS_LLM_PROVIDER=openai` and `OPENAI_API_KEY=...` in `backend/.env` (or the Anthropic equivalents) instead of using `FABRICOPS_LLM_PROVIDER=demo`, run `python -m evals.live --check` first, and run the same script. The
 "Scripted demo model" box will not appear. Wording, observations and the proposal will differ and may be rejected by the
 validator (the run then shows *Failed* with the reason), which is also worth showing. This path has not been run by the
 project's author; see the README.

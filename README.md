@@ -57,16 +57,16 @@ flowchart LR
 ```
 
 The full design, with diagrams of one investigation and the run states, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-The model is a provider behind one interface: the Anthropic API, a **scripted demo model** (a fixed script for trying the app without a key; it is not an AI and every page it touches says so), or a mock used by tests.
+The model is a provider behind one interface: the OpenAI API, the Anthropic API, a **scripted demo model** (a fixed script for trying the app without a key; it is not an AI and every page it touches says so), or a mock used by tests.
 
 ## Technology
 
-Python 3.11+ with FastAPI, Pydantic and SQLite; React, TypeScript and Vite; pytest and vitest; lexical (BM25) retrieval; the Anthropic SDK behind an adapter. No Docker, no embeddings, no vector database.
+Python 3.11+ with FastAPI, Pydantic and SQLite; React, TypeScript and Vite; pytest and vitest; lexical (BM25) retrieval; the OpenAI and Anthropic SDKs, each behind its own adapter. No Docker, no embeddings, no vector database.
 
 ## Prerequisites
 
 Python 3.11 or newer, Node 20 or newer, and git. Developed and tested with Python 3.13 and Node 24 on Windows.
-An Anthropic API key is **optional**: the demo model needs none.
+An OpenAI or Anthropic API key is **optional**: the demo model needs none.
 
 ## Install and run
 
@@ -113,7 +113,16 @@ npm run dev
 
 Open <http://localhost:5173>. Interactive API docs are at <http://localhost:8000/docs>. A data file is created at `backend/data/fabricops.db` on first use; delete it to start fresh.
 
-**With a real model instead:** leave out `FABRICOPS_LLM_PROVIDER=demo` and set `FABRICOPS_LLM_API_KEY` (or `ANTHROPIC_API_KEY`) in the backend's environment or in `backend/.env`. The Anthropic path is covered by unit tests against a fake client but **has never been run against the live API** by the project's author. Without either a key or the demo model, the stale-telemetry scenario still works (it abstains before a model is needed) and the other two end in a clear "no API credentials" failure.
+**With a real model instead (OpenAI):** create `backend/.env` containing
+
+```
+FABRICOPS_LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-...your key...
+```
+
+(optionally `FABRICOPS_LLM_MODEL=` to pick a model; the default for OpenAI is `gpt-4.1`). The file is git-ignored. Restart the backend from the `backend/` folder (it reads `.env` from the folder it runs in) **without** `FABRICOPS_LLM_PROVIDER=demo` in the shell. Before spending anything, run the free check `python -m evals.live --check`, which asks only whether the key works and the model is available to it. For Anthropic use `FABRICOPS_LLM_PROVIDER=anthropic` and `ANTHROPIC_API_KEY`.
+
+Both real adapters are covered by unit tests against fake clients but **have never been run against the live APIs** by the project's author. Without either a key or the demo model, the stale-telemetry scenario still works (it abstains before a model is needed) and the other two end in a clear "no API credentials" failure.
 
 ## Environment variables
 
@@ -121,10 +130,12 @@ Copy the backend lines of [.env.example](.env.example) to `backend/.env` (run th
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `FABRICOPS_LLM_PROVIDER` | `anthropic` | `anthropic`, `demo` (scripted, not an AI) or `mock` |
-| `FABRICOPS_LLM_API_KEY` | unset | Falls back to `ANTHROPIC_API_KEY`. Backend only; never sent to the browser |
-| `FABRICOPS_LLM_MODEL` | `claude-opus-5-5` | Model for real investigations |
-| `FABRICOPS_LLM_EFFORT`, `_MAX_TOKENS`, `_TIMEOUT_SECONDS`, `_MAX_ATTEMPTS`, `_ENABLE_FALLBACKS` | `high`, 8000, 120, 3, `true` | Model request settings; retries are for transient errors only |
+| `FABRICOPS_LLM_PROVIDER` | `anthropic` | `anthropic`, `openai`, `demo` (scripted, not an AI) or `mock` |
+| `OPENAI_API_KEY` | unset | Key used when the provider is `openai`. Read from the environment or `backend/.env`. Backend only; never sent to the browser |
+| `ANTHROPIC_API_KEY` | unset | Key used when the provider is `anthropic` |
+| `FABRICOPS_LLM_API_KEY` | unset | One key for whichever provider is selected; overrides the two above |
+| `FABRICOPS_LLM_MODEL` | provider default: `gpt-4.1` (openai), `claude-opus-5-5` (anthropic) | Model for real investigations |
+| `FABRICOPS_LLM_EFFORT`, `_MAX_TOKENS`, `_TIMEOUT_SECONDS`, `_MAX_ATTEMPTS`, `_ENABLE_FALLBACKS` | `high`, 8000, 120, 3, `true` | Model request settings; retries are for transient errors only. Effort is sent only to OpenAI reasoning models; fallbacks apply to Anthropic only |
 | `FABRICOPS_DATABASE_PATH` | `backend/data/fabricops.db` | SQLite file |
 | `FABRICOPS_CORS_ORIGINS` | local Vite origins | Browser origins allowed to call the API |
 | `FABRICOPS_MAX_REQUEST_BYTES` | 65536 | Largest request body (larger gets HTTP 413) |
@@ -186,10 +197,10 @@ Errors share one shape: `{"error": {"code", "message", "details": [{"field", "me
 
 ```bash
 cd backend
-.venv/bin/python -m pytest -q                  # 403 backend tests (includes the evaluation and security regression tests)
+.venv/bin/python -m pytest -q                  # 441 backend tests (includes the evaluation and security regression tests)
 .venv/bin/python -m evals                      # the 29-case evaluation and its metrics
 .venv/bin/python -m evals --write-report       # regenerate docs/evaluation/EVAL_REPORT.md
-.venv/bin/python -m evals.live                 # OPTIONAL: real model, real (billed) requests, needs an API key; not run by the author
+.venv/bin/python -m evals.live                 # OPTIONAL: real model, real (billed) requests, needs a key; --check is a free key-and-model test; not run by the author
 
 cd ../frontend
 npm test                                       # 70 frontend tests
@@ -205,7 +216,7 @@ Phases 00 to 12 of the [build guide](docs/guide/phases) are complete. Each phase
 
 ## Known limitations
 
-- **The real model path is unproven.** The Anthropic adapter and the request shape (structured output, effort, refusal fallbacks) were written from the SDK documentation and tested only against a fake client. The inference-slowdown and link-instability scenarios have been run only with scripted or mock answers.
+- **The real model path is unproven.** The OpenAI and Anthropic adapters and their request shapes (structured output, reasoning effort, refusal handling) were written from the SDKs and tested only against fake clients. Whether your account and chosen model accept the request is found out by `python -m evals.live --check` and then the live smoke test. The inference-slowdown and link-instability scenarios have been run only with scripted or mock answers.
 - **No measurement of answer quality** and no manual claim-support review (see above).
 - **Citation relevance is not machine-checked.** Only that a cited passage exists and was retrieved for the run.
 - **The risk policy is keyword-based.** It errs toward requiring approval but can misjudge unusual wording. The real backstop is that nothing is ever executed.
@@ -236,7 +247,7 @@ backend/
   app/            api, services, storage, schemas, tools, retrieval, llm, policy, workflow, domain, core
   data/           fixtures (3 scenarios), docs (synthetic runbooks), evals (answer keys + dataset)
   evals/          evaluation runner, scripted behaviours, metrics, report, optional live smoke test
-  tests/          403 tests
+  tests/          441 tests
   requirements-lock.txt   pinned Python versions
 frontend/         React + TypeScript + Vite UI, with tests beside the code
 docs/             ARCHITECTURE, DEMO_SCRIPT, RELEASE_NOTES, ACCEPTANCE_REVIEW, evaluation/, security/, guide/, images/

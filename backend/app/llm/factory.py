@@ -9,6 +9,10 @@ def create_provider(settings: Settings) -> LLMProvider:
         from app.llm.anthropic_provider import AnthropicProvider
 
         return AnthropicProvider(settings)
+    if settings.llm_provider == "openai":
+        from app.llm.openai_provider import OpenAIProvider
+
+        return OpenAIProvider(settings)
     if settings.llm_provider == "mock":
         return MockProvider({"observations": [], "hypotheses": [], "missing_evidence": ["mock provider"],
                              "next_test": None, "abstain": True, "abstain_reason": "mock provider",
@@ -17,4 +21,4 @@ def create_provider(settings: Settings) -> LLMProvider:
         from app.llm.demo import ScriptedDemoProvider
 
         return ScriptedDemoProvider()
-    raise PermanentProviderError(f"unknown llm_provider '{settings.llm_provider}' (use 'anthropic', 'demo' or 'mock')")
+    raise PermanentProviderError(f"unknown llm_provider '{settings.llm_provider}' (use 'anthropic', 'openai', 'demo' or 'mock')")

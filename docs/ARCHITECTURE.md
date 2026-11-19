@@ -26,7 +26,7 @@ flowchart LR
     end
     DB[(SQLite)]
     FIX[Synthetic fixtures<br/>+ runbooks]
-    LLM{{"Model provider<br/>Anthropic, scripted demo, or mock"}}
+    LLM{{"Model provider<br/>OpenAI, Anthropic, scripted demo, or mock"}}
 
     UI -->|JSON over HTTP| MW --> API --> SVC --> REPO --> DB
     API -->|start run, 202| WF
@@ -110,7 +110,7 @@ UI's timeline replays.
 | Services | `app/services` | Incidents, runs (idempotent start), proposals and decisions |
 | Tools | `app/tools` | Exactly three read-only tools over a fixture adapter; typed, bounded, scoped |
 | Retrieval | `app/retrieval`, `backend/data/docs` | Manifest, chunker with stable versioned IDs, BM25, `search_docs` |
-| Model | `app/llm` | Provider interface; Anthropic adapter (the only file importing the SDK); scripted demo and mock providers; prompt; validator; investigator |
+| Model | `app/llm` | Provider interface; OpenAI and Anthropic adapters (each the only file importing its SDK); scripted demo and mock providers; prompt; validator; investigator |
 | Policy | `app/policy` | Deterministic risk class from wording, SHA-256 proposal hash |
 | Workflow | `app/workflow` | The fixed stage sequence, limits, events, failure handling |
 | UI | `frontend/src` | Typed API client, hash router, pages, evidence and citation inspector, approval panel |
@@ -138,7 +138,7 @@ quoted, labelled data. There is no execution adapter anywhere: approving a propo
 | `docs/project` and `docs/architecture` folders | `docs/` with `guide`, `evaluation`, `security`, `project`, `images` |
 | Entities: Incident, Run, Evidence, Document chunk, Report, Proposal, Decision | Same, plus `run_events`; document chunks live in memory, loaded from the versioned corpus, not in SQLite |
 | Run states | Same seven. `WAITING_APPROVAL` ends `COMPLETE` when a human decides and `CANCELLED` if the window expires |
-| LLM provider adapter | Anthropic adapter, plus a scripted **demo** provider (not an AI) so the app and a fresh clone can be checked without a key, and a mock for tests |
+| LLM provider adapter | OpenAI and Anthropic adapters, plus a scripted **demo** provider (not an AI) so the app and a fresh clone can be checked without a key, and a mock for tests |
 | Incident data | Matched to a synthetic fixture by `scenario_type`; there is no live connector by design |
 | Approver identity | A demo reviewer name in a request header; not authentication |
 | Docker | Not provided. The project runs locally |

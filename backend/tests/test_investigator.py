@@ -378,7 +378,7 @@ def test_report_and_model_metadata_persist(tmp_path, s1):
 def test_factory_selects_providers():
     assert create_provider(Settings(llm_provider="mock")).name == "mock"
     with pytest.raises(PermanentProviderError, match="unknown llm_provider"):
-        create_provider(Settings(llm_provider="openai"))
+        create_provider(Settings(llm_provider="gemini"))
 
 
 class FakeMessages:

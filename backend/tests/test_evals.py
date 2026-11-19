@@ -144,7 +144,7 @@ def test_eval_catches_the_case_id_leaking_into_the_prompt(monkeypatch):
 
 def test_live_smoke_is_skipped_without_credentials(monkeypatch, capsys):
     monkeypatch.setattr(live, "have_credentials", lambda: False)
-    assert live.main() == 0
+    assert live.main([]) == 0
     assert "skipped" in capsys.readouterr().out
 
 

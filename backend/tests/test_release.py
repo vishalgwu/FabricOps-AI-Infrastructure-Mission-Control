@@ -21,7 +21,7 @@ def _lock() -> dict[str, str]:
 def _declared() -> list[Requirement]:
     project = tomllib.loads((BACKEND / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     reqs = list(project["dependencies"])
-    for extra in ("dev", "llm"):
+    for extra in ("dev", "llm", "openai"):
         reqs += project["optional-dependencies"][extra]
     return [Requirement(r) for r in reqs]
 

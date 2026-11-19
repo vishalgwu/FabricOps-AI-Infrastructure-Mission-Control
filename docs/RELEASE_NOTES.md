@@ -47,9 +47,13 @@ Done on 2026-11-18, on Windows 11 with Python 3.13.5 and Node 24, from a **clean
 
 Not covered by this check: Linux and macOS, other Python or Node versions, and any use of a real API key.
 
+## After v0.1.0
+
+- **OpenAI provider added** (`FABRICOPS_LLM_PROVIDER=openai`, key from `OPENAI_API_KEY` in `backend/.env`, default model `gpt-4.1`), with a free key-and-model check (`python -m evals.live --check`). Verified only against a fake client: 38 new tests, 441 backend tests in total. **Not run against the live OpenAI API.** The default model name was chosen from the installed SDK's list of model names and has not been confirmed to be available to any particular account.
+
 ## Not verified (read this)
 
-- **The real model.** The Anthropic adapter, its request shape (structured output, effort, refusal fallbacks) and the quality of real answers were never exercised. The adapter is tested only against a fake client. The optional live smoke test (`python -m evals.live`) exists and was not run.
+- **The real model.** The OpenAI and Anthropic adapters, their request shapes (structured output, effort, refusal fallbacks) and the quality of real answers were never exercised. The adapter is tested only against a fake client. The optional live smoke test (`python -m evals.live`) exists and was not run.
 - **Claim support.** No manual review of whether a model's claims are supported by the evidence has been done. The rubric exists; its results log is empty.
 - **Latency and token cost** of real runs.
 - **Other platforms.** Developed and tested on Windows with Python 3.13 and Node 24. The Python lock file was generated there. Linux and macOS were not tried.
